@@ -195,7 +195,7 @@ cd server && npm run dev
 **Carlos Rezai** — Senior Software Engineer, Berlin
 Transitioning from frontend specialist to fullstack + AI integration.
 
-[GitHub](https://github.com/carlosrezai) · [LinkedIn](https://linkedin.com/in/carlosrezai)
+[GitHub](https://github.com/carlos-rezai) · [LinkedIn](https://www.linkedin.com/in/aryan-carlos-r-0ba21017b/)
 
 ---
 
