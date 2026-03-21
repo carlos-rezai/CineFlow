@@ -187,6 +187,7 @@ cd server && npm run dev
 - [Ubiquitous Language](./docs/ubiquitous-language.md)
 - [Design Logs](./docs/design-logs/)
 - [PRDs](./docs/PRDs/)
+- [Dev Journal](./docs/dev-journal.md)
 
 ---
 
