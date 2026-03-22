@@ -1,3 +1,10 @@
+export interface TmdbCandidate {
+  tmdbId: number
+  title: string
+  year: number
+  posterUrl: string
+}
+
 export interface TmdbMovieDetail {
   tmdbId: number
   title: string
