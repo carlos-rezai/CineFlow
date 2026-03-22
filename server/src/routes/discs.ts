@@ -8,52 +8,41 @@ import {
   checkDuplicate,
 } from '../services/discService.js'
 import { upsertTmdbMovie } from '../services/tmdbMovieService.js'
+import { getTmdbMovieDetails } from '../lib/tmdbClient.js'
 import type { DiscPatch } from '../types/index.js'
 
 interface CreateDiscBody {
   barcode: string
   format: '4K' | 'Blu-ray' | 'DVD'
   tmdbId: number
-  title: string
-  year: number
-  posterUrl: string
-  overview: string
-  runtime: number
-  genres: string[]
-  directors: string[]
-  cast: string[]
-  tmdbRating: number
   forceAdd?: boolean
 }
 
 const router = Router()
 
 router.post('/', async (req, res) => {
-  const body = req.body as CreateDiscBody
-  const { barcode, format, tmdbId, forceAdd, ...tmdbFields } = body
+  const { barcode, format, tmdbId, forceAdd } = req.body as CreateDiscBody
+
+  if (!barcode) {
+    res.status(400).json({ error: 'barcode is required' })
+    return
+  }
 
   if (!forceAdd) {
     const isDuplicate = await checkDuplicate(barcode)
     if (isDuplicate) {
-      res.status(200).json({ isDuplicate: true })
+      res.status(409).json({ error: 'duplicate' })
       return
     }
   }
 
-  await upsertTmdbMovie({
-    tmdbId,
-    title: tmdbFields.title,
-    year: tmdbFields.year,
-    posterUrl: tmdbFields.posterUrl,
-    overview: tmdbFields.overview,
-    runtime: tmdbFields.runtime,
-    genres: tmdbFields.genres,
-    directors: tmdbFields.directors,
-    cast: tmdbFields.cast,
-    tmdbRating: tmdbFields.tmdbRating,
-    cachedAt: new Date().toISOString(),
-  })
+  const tmdbDetails = await getTmdbMovieDetails(tmdbId)
+  if (!tmdbDetails) {
+    res.status(502).json({ error: 'Failed to fetch TMDB metadata' })
+    return
+  }
 
+  await upsertTmdbMovie(tmdbDetails)
   const disc = await createDisc({ barcode, format, tmdbId })
   res.status(201).json(disc)
 })

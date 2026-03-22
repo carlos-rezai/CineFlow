@@ -9,15 +9,18 @@
     "test:run": "vitest run"
   },
   "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
     "express": "^5.1.0",
     "mongodb": "^6.17.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.12.0",
     "mongodb-memory-server": "^10.1.4",
-    "typescript": "~5.9.3",
     "tsx": "^4.19.4",
+    "typescript": "~5.9.3",
     "vitest": "^4.1.0"
   }
 }

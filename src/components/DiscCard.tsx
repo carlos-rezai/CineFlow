@@ -17,7 +17,7 @@ const DiscCard = ({ disc }: DiscCardProps) => {
       onKeyDown={(e) => e.key === 'Enter' && history.push(`/disc/${disc._id}`)}
     >
       <div className="disc-card__poster">
-        <img src={disc.posterUrl} alt={disc.title} />
+        <img src={disc.posterUrl || undefined} alt={disc.title} />
         {disc.watched && (
           <div className="disc-card__watched-overlay" aria-label="Watched">
             ✓

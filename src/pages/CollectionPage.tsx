@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   IonContent,
   IonFab,
@@ -12,12 +13,14 @@ import {
   IonToolbar,
 } from '@ionic/react'
 import { add } from 'ionicons/icons'
+import AddDiscModal from '../components/AddDiscModal'
 import DiscCard from '../components/DiscCard'
 import { useCollection } from '../hooks/useCollection'
 import type { WatchedFilter } from '../hooks/useCollection'
 
 const CollectionPage = () => {
-  const { discs, filter, setFilter } = useCollection()
+  const { discs, filter, setFilter, refresh } = useCollection()
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
     <IonPage>
@@ -51,10 +54,18 @@ const CollectionPage = () => {
         </div>
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton>
+          <IonFabButton onClick={() => setIsModalOpen(true)}>
             <IonIcon icon={add} />
           </IonFabButton>
         </IonFab>
+
+        <AddDiscModal
+          isOpen={isModalOpen}
+          onDidDismiss={() => {
+            setIsModalOpen(false)
+            void refresh()
+          }}
+        />
       </IonContent>
     </IonPage>
   )
