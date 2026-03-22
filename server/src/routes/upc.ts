@@ -1,10 +1,11 @@
 import { Router } from 'express'
+import { lookupUpc } from '../lib/upcClient.js'
 
-// Stub — real UPC API calls implemented in Phase 2
 const router = Router()
 
-router.get('/:barcode', (_req, res) => {
-  res.json({ title: null })
+router.get('/:barcode', async (req, res) => {
+  const title = await lookupUpc(req.params.barcode)
+  res.json({ title })
 })
 
 export default router

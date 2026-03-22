@@ -1,10 +1,12 @@
 import { Router } from 'express'
+import { searchTmdb } from '../lib/tmdbClient.js'
 
-// Stub — real TMDB API calls implemented in Phase 2
 const router = Router()
 
-router.get('/search', (_req, res) => {
-  res.json([])
+router.get('/search', async (req, res) => {
+  const q = typeof req.query.q === 'string' ? req.query.q : ''
+  const candidates = await searchTmdb(q)
+  res.json(candidates)
 })
 
 export default router
