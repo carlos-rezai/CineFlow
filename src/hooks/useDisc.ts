@@ -17,7 +17,11 @@ export interface UseDiscResult {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
 
-export function useDisc(id: string, onDelete?: () => void): UseDiscResult {
+export function useDisc(
+  id: string,
+  onDelete?: () => void,
+  onWatchedToggle?: () => void,
+): UseDiscResult {
   const [disc, setDisc] = useState<DiscSummary | null>(null)
   const [tmdbMovie, setTmdbMovie] = useState<TmdbMovieDetail | null>(null)
   const [loading, setLoading] = useState(true)
@@ -72,6 +76,8 @@ export function useDisc(id: string, onDelete?: () => void): UseDiscResult {
     if (!res.ok) {
       setDisc(prev)
       showToast('Failed to save — changes reverted')
+    } else {
+      onWatchedToggle?.()
     }
   }
 

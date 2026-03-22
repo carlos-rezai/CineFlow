@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import {
   IonContent,
   IonFab,
@@ -11,16 +11,26 @@ import {
   IonSegmentButton,
   IonTitle,
   IonToolbar,
+  useIonViewWillEnter,
 } from '@ionic/react'
 import { add } from 'ionicons/icons'
 import AddDiscModal from '../components/AddDiscModal'
 import DiscCard from '../components/DiscCard'
 import { useCollection } from '../hooks/useCollection'
 import type { WatchedFilter } from '../hooks/useCollection'
+import { CollectionRefreshContext } from '../context/CollectionRefreshContext'
 
 const CollectionPage = () => {
   const { discs, filter, setFilter, refresh } = useCollection()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const refreshRef = useContext(CollectionRefreshContext)
+
+  // Update ref synchronously during render — no async gap, never stale
+  refreshRef.current = refresh
+
+  useIonViewWillEnter(() => {
+    void refreshRef.current()
+  })
 
   return (
     <IonPage>
