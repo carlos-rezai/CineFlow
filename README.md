@@ -66,8 +66,8 @@ This project was built using a structured **Claude Code skill workflow**.
 Every feature follows the same sequence before a line of code is written:
 
 ```
-grill-me → ubiquitous-language → write-a-prd → prd-to-plan
-→ prd-to-issues → tdd → build → request-refactor-plan
+grill-me → design-log → ubiquitous-language → write-a-prd → prd-to-plan
+→ prd-to-issues → tdd → build → request-refactor-plan → refactor
 ```
 
 **What this means in practice:**
@@ -197,6 +197,7 @@ Then open `http://localhost:5173` in your browser.
 - [Ubiquitous Language](./docs/ubiquitous-language.md)
 - [Design Logs](./docs/design-logs/)
 - [PRDs](./docs/PRDs/)
+- [Refactor Plans](./docs/refactor-plans)
 - [Dev Journal](./docs/dev-journal.md)
 
 ---
