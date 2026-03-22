@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb'
 import { getDb } from '../lib/db.js'
 import type {
   Disc,
+  DiscListItem,
   TMDBMovie,
   CreateDiscInput,
   DiscPatch,
@@ -26,10 +27,32 @@ export async function createDisc(input: CreateDiscInput): Promise<Disc> {
 
 export async function listDiscs(filter?: {
   watched?: boolean
-}): Promise<Disc[]> {
+}): Promise<DiscListItem[]> {
   const db = getDb()
-  const query = filter?.watched !== undefined ? { watched: filter.watched } : {}
-  return db.collection<Disc>('discs').find(query).toArray()
+  const match = filter?.watched !== undefined ? { watched: filter.watched } : {}
+  return db
+    .collection('discs')
+    .aggregate<DiscListItem>([
+      { $match: match },
+      {
+        $lookup: {
+          from: 'tmdb_movies',
+          localField: 'tmdbId',
+          foreignField: 'tmdbId',
+          as: 'tmdbData',
+        },
+      },
+      {
+        $addFields: {
+          posterUrl: {
+            $ifNull: [{ $arrayElemAt: ['$tmdbData.posterUrl', 0] }, ''],
+          },
+          title: { $ifNull: [{ $arrayElemAt: ['$tmdbData.title', 0] }, ''] },
+        },
+      },
+      { $project: { tmdbData: 0 } },
+    ])
+    .toArray()
 }
 
 export async function getDisc(

@@ -46,3 +46,8 @@ export type DiscPatch = Partial<
 >
 
 export type TMDBMovieInput = Omit<TMDBMovie, '_id'>
+
+export type DiscListItem = Disc & {
+  posterUrl: string
+  title: string
+}
