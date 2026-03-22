@@ -123,10 +123,11 @@ cineflow/
 │   ├── pages/             # CollectionPage, DiscDetailPage
 │   └── types/             # Shared TypeScript interfaces
 └── docs/
-    ├── design-logs/       # One file per feature, decision history
-    ├── PRDs/              # Product requirements + phased plans
-    ├── dev-journal.md     # Process learnings and gotchas
-    └── ubiquitous-language.md
+    ├── design-logs/        # Immutable feature design snapshots
+    ├── PRDs/               # Product requirements and implementation plans
+    ├── refactor-plans/     # Refactor RFCs filed as work items
+    ├── ubiquitous-language.md
+    └── dev-journal.md
 ```
 
 ---
