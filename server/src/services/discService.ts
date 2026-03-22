@@ -51,6 +51,7 @@ export async function listDiscs(filter?: {
         },
       },
       { $project: { tmdbData: 0 } },
+      { $sort: { addedAt: -1 } },
     ])
     .toArray()
 }
