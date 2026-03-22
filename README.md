@@ -114,17 +114,18 @@ cineflow/
 │   └── types/             # AI-specific TypeScript types
 ├── server/                # Express backend
 │   └── src/
-│       ├── routes/
-│       ├── services/      # MongoDB + TMDB logic
-│       └── lib/
+│       ├── routes/        # /api/discs, /api/tmdb, /api/upc
+│       ├── services/      # MongoDB + TMDB + UPC logic
+│       └── lib/           # db.ts, tmdbClient.ts, upcClient.ts
 ├── src/                   # React frontend
-│   ├── features/          # Feature-scoped components + hooks
-│   ├── lib/               # Pure logic (no AI, no DB)
-│   ├── pages/
-│   └── types/
+│   ├── components/        # DiscCard, AddDiscModal
+│   ├── hooks/             # useCollection, useDisc, useAddDisc
+│   ├── pages/             # CollectionPage, DiscDetailPage
+│   └── types/             # Shared TypeScript interfaces
 └── docs/
     ├── design-logs/       # One file per feature, decision history
-    ├── PRDs/              # Product requirements per feature
+    ├── PRDs/              # Product requirements + phased plans
+    ├── dev-journal.md     # Process learnings and gotchas
     └── ubiquitous-language.md
 ```
 
@@ -142,43 +143,51 @@ cineflow/
 ### Installation
 
 ```bash
-git clone https://github.com/carlosrezai/cineflow.git
-cd cineflow
+git clone https://github.com/carlos-rezai/CineFlow.git
+cd CineFlow
 npm install
+cd server && npm install && cd ..
 ```
 
 ### Environment Variables
 
-Create a `.env` file in the root:
+Create a `.env` file in the **project root** for the frontend:
 
 ```
-GEMINI_API_KEY=your_key_here
-TMDB_API_KEY=your_key_here
-MONGODB_URI=your_mongodb_atlas_uri
-PORT=3001
 VITE_API_BASE_URL=http://localhost:3001
+```
+
+Create a `.env` file in **`server/`** for the backend:
+
+```
+MONGODB_URI=your_mongodb_atlas_uri
+TMDB_API_KEY=your_tmdb_api_key
+GEMINI_API_KEY=your_gemini_api_key
+PORT=3001
 ```
 
 ### Run
 
 ```bash
-# Frontend
+# Terminal 1 — Frontend
 npm run dev
 
-# Backend (in a separate terminal)
+# Terminal 2 — Backend
 cd server && npm run dev
 ```
+
+Then open `http://localhost:5173` in your browser.
 
 ---
 
 ## Build Status
 
-| Feature                                               | Status         |
-| ----------------------------------------------------- | -------------- |
-| Collection core (barcode scan + TMDB + MongoDB)       | 🔲 In progress |
-| Collection intelligence (stats + completion tracking) | 🔲 Planned     |
-| Mood engine (natural language → collection match)     | 🔲 Planned     |
-| Decision pipeline (multi-step AI reasoning)           | 🔲 Planned     |
+| Feature                                               | Status      |
+| ----------------------------------------------------- | ----------- |
+| Collection core (barcode scan + TMDB + MongoDB)       | ✅ Complete |
+| Collection intelligence (stats + completion tracking) | 🔲 Planned  |
+| Mood engine (natural language → collection match)     | 🔲 Planned  |
+| Decision pipeline (multi-step AI reasoning)           | 🔲 Planned  |
 
 ---
 
@@ -200,4 +209,4 @@ Transitioning from frontend specialist to fullstack + AI integration.
 
 ---
 
-_Live demo coming once collection core is complete._
+_Live demo coming soon._
