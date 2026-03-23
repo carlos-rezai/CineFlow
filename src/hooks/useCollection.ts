@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { DiscSummary } from '../types/disc'
+import { apiGet } from '../lib/api'
 
 export type WatchedFilter = 'all' | 'watched' | 'unwatched'
 
@@ -11,8 +12,6 @@ export interface UseCollectionResult {
   refresh: () => void
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
-
 export function useCollection(): UseCollectionResult {
   const [discs, setDiscs] = useState<DiscSummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -23,11 +22,16 @@ export function useCollection(): UseCollectionResult {
     const version = ++fetchVersion.current
     setLoading(true)
     const params = filter === 'all' ? '' : `?watched=${filter === 'watched'}`
-    const res = await fetch(`${API_BASE}/api/discs${params}`)
-    const data = (await res.json()) as DiscSummary[]
-    if (version === fetchVersion.current) {
-      setDiscs(data)
-      setLoading(false)
+    try {
+      const data = await apiGet<DiscSummary[]>(`/api/discs${params}`)
+      if (version === fetchVersion.current) {
+        setDiscs(data)
+        setLoading(false)
+      }
+    } catch {
+      if (version === fetchVersion.current) {
+        setLoading(false)
+      }
     }
   }, [filter])
 
