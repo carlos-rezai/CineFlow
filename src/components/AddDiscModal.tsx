@@ -16,6 +16,7 @@ import {
 } from '@ionic/react'
 import { useAddDisc } from '../hooks/useAddDisc'
 import type { DiscFormat } from '../hooks/useAddDisc'
+import './AddDiscModal.css'
 
 interface BarcodeDetected {
   rawValue: string
@@ -154,7 +155,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
           </IonToolbar>
         </IonHeader>
         <IonContent>
-          <video ref={videoRef} style={{ width: '100%' }} playsInline muted />
+          <video ref={videoRef} className="add-disc__video" playsInline muted />
         </IonContent>
       </IonModal>
     )
@@ -191,15 +192,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
             value={barcode}
             onChange={(e) => onBarcodeSet(e.target.value)}
             placeholder="Enter barcode manually"
-            style={{
-              width: '100%',
-              background: 'transparent',
-              border: 'none',
-              outline: 'none',
-              padding: '8px 0',
-              color: 'inherit',
-              fontSize: 'inherit',
-            }}
+            className="text-input"
           />
         </IonItem>
 
@@ -209,11 +202,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
               <img
                 src={candidate.posterUrl}
                 alt={candidate.title}
-                style={{
-                  width: '100%',
-                  maxHeight: '300px',
-                  objectFit: 'contain',
-                }}
+                className="add-disc__poster"
               />
             )}
             <IonItem>
@@ -235,15 +224,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Enter title"
-                style={{
-                  width: '100%',
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  padding: '8px 0',
-                  color: 'inherit',
-                  fontSize: 'inherit',
-                }}
+                className="text-input"
               />
             </IonItem>
             <IonButton
@@ -264,7 +245,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
                     src={r.posterUrl}
                     alt={r.title}
                     slot="start"
-                    style={{ height: '60px', width: 'auto' }}
+                    className="add-disc__search-result-poster"
                   />
                 )}
                 <IonLabel>
