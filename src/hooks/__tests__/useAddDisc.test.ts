@@ -35,9 +35,11 @@ describe('useAddDisc', () => {
       vi
         .fn()
         .mockResolvedValueOnce({
+          ok: true,
           json: async () => ({ title: 'Blade Runner 2049' }),
         })
         .mockResolvedValueOnce({
+          ok: true,
           json: async () => [makeCandidate()],
         }),
     )
@@ -58,6 +60,7 @@ describe('useAddDisc', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValueOnce({
+        ok: true,
         json: async () => ({ title: null }),
       }),
     )

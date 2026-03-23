@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import type { TmdbCandidate } from '../types/tmdb'
+import { apiGet, apiPost, ApiError } from '../lib/api'
 
 export type AddDiscState = 'scan' | 'confirm' | 'success' | 'error'
 export type DiscFormat = '4K' | 'Blu-ray' | 'DVD'
@@ -22,8 +23,6 @@ export interface UseAddDiscResult {
   reset: () => void
   onClose: () => void
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
 
 export function useAddDisc(onClose: () => void): UseAddDiscResult {
   const [state, setState] = useState<AddDiscState>('scan')
@@ -54,22 +53,21 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
   }
 
   const searchTmdb = async (query: string): Promise<TmdbCandidate[]> => {
-    const res = await fetch(
-      `${API_BASE}/api/tmdb/search?q=${encodeURIComponent(query)}`,
+    return apiGet<TmdbCandidate[]>(
+      `/api/tmdb/search?q=${encodeURIComponent(query)}`,
     )
-    return (await res.json()) as TmdbCandidate[]
   }
 
   const onBarcodeDetected = async (scannedBarcode: string) => {
     barcodeRef.current = scannedBarcode
     setBarcode(scannedBarcode)
-    const res = await fetch(`${API_BASE}/api/upc/${scannedBarcode}`)
-    const data = (await res.json()) as { title: string | null }
+    const data = await apiGet<{ title: string | null }>(
+      `/api/upc/${scannedBarcode}`,
+    )
     if (data.title) {
-      const searchRes = await fetch(
-        `${API_BASE}/api/tmdb/search?q=${encodeURIComponent(data.title)}`,
+      const candidates = await apiGet<TmdbCandidate[]>(
+        `/api/tmdb/search?q=${encodeURIComponent(data.title)}`,
       )
-      const candidates = (await searchRes.json()) as TmdbCandidate[]
       setCandidate(candidates[0] ?? null)
     } else {
       setCandidate(null)
@@ -93,25 +91,21 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
     if (!candidate || !format) return
     setIsDuplicate(false)
     setErrorMessage(null)
-    const res = await fetch(`${API_BASE}/api/discs`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      await apiPost('/api/discs', {
         barcode: barcodeRef.current,
         format,
         tmdbId: candidate.tmdbId,
         forceAdd,
-      }),
-    })
-    if (res.status === 409) {
-      setIsDuplicate(true)
-      return
+      })
+      setState('success')
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setIsDuplicate(true)
+      } else {
+        setErrorMessage('Failed to add disc. Please try again.')
+      }
     }
-    if (!res.ok) {
-      setErrorMessage('Failed to add disc. Please try again.')
-      return
-    }
-    setState('success')
   }
 
   return {
