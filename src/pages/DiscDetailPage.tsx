@@ -18,6 +18,7 @@ import {
 import { useDisc } from '../hooks/useDisc'
 import type { DiscSummary } from '../types/disc'
 import { CollectionRefreshContext } from '../context/CollectionRefreshContext'
+import './DiscDetailPage.css'
 
 const StarRating = ({
   rating,
@@ -26,18 +27,14 @@ const StarRating = ({
   rating: DiscSummary['rating']
   onRate: (r: 1 | 2 | 3 | 4 | 5 | null) => void
 }) => (
-  <div style={{ display: 'flex', gap: '0.25rem', margin: '0.5rem 0' }}>
+  <div className="star-rating">
     {([1, 2, 3, 4, 5] as const).map((star) => (
       <button
         key={star}
         onClick={() => onRate(rating === star ? null : star)}
+        className="star-rating__button"
         style={{
-          background: 'none',
-          border: 'none',
-          fontSize: '1.75rem',
-          cursor: 'pointer',
           color: rating !== null && star <= rating ? '#f4c430' : '#9e9e9e',
-          padding: '0 0.1rem',
         }}
         aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
       >
@@ -86,13 +83,7 @@ const DiscDetailPage = () => {
 
       <IonContent className="ion-padding">
         {loading && (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              padding: '2rem',
-            }}
-          >
+          <div className="disc-detail__spinner">
             <IonSpinner />
           </div>
         )}
@@ -103,33 +94,28 @@ const DiscDetailPage = () => {
               <img
                 src={tmdbMovie.posterUrl}
                 alt={tmdbMovie.title}
-                style={{
-                  width: '100%',
-                  maxHeight: '400px',
-                  objectFit: 'contain',
-                  marginBottom: '1rem',
-                }}
+                className="disc-detail__poster"
               />
             )}
 
-            <h1 style={{ margin: '0 0 0.25rem' }}>{tmdbMovie.title}</h1>
-            <p style={{ margin: '0 0 0.5rem', opacity: 0.7 }}>
+            <h1 className="disc-detail__title">{tmdbMovie.title}</h1>
+            <p className="disc-detail__meta">
               {tmdbMovie.year} · {disc.format} · {tmdbMovie.runtime} min
             </p>
-            <p style={{ margin: '0 0 0.5rem', opacity: 0.7 }}>
+            <p className="disc-detail__meta">
               TMDB rating: {tmdbMovie.tmdbRating.toFixed(1)}
             </p>
 
             {tmdbMovie.genres.length > 0 && (
-              <p style={{ margin: '0 0 1rem', opacity: 0.7 }}>
+              <p className="disc-detail__genres">
                 {tmdbMovie.genres.join(', ')}
               </p>
             )}
 
-            <p style={{ margin: '0 0 1rem' }}>{tmdbMovie.overview}</p>
+            <p className="disc-detail__overview">{tmdbMovie.overview}</p>
 
             {tmdbMovie.directors.length > 0 && (
-              <p style={{ margin: '0 0 0.5rem' }}>
+              <p className="disc-detail__crew">
                 <strong>
                   Director{tmdbMovie.directors.length > 1 ? 's' : ''}:
                 </strong>{' '}
@@ -138,7 +124,7 @@ const DiscDetailPage = () => {
             )}
 
             {tmdbMovie.cast.length > 0 && (
-              <p style={{ margin: '0 0 1.5rem' }}>
+              <p className="disc-detail__cast">
                 <strong>Cast:</strong> {tmdbMovie.cast.join(', ')}
               </p>
             )}
@@ -148,19 +134,12 @@ const DiscDetailPage = () => {
               expand="block"
               fill={disc.watched ? 'solid' : 'outline'}
               onClick={() => void toggleWatched()}
-              style={{ marginBottom: '0.25rem' }}
+              className="ion-margin-bottom"
             >
               {disc.watched ? '✓ Watched' : 'Mark as Watched'}
             </IonButton>
             {disc.watched && (
-              <p
-                style={{
-                  margin: '0 0 1rem',
-                  opacity: 0.6,
-                  fontSize: '0.85rem',
-                  textAlign: 'center',
-                }}
-              >
+              <p className="disc-detail__watch-count">
                 Watched {disc.watchCount} time{disc.watchCount !== 1 ? 's' : ''}
               </p>
             )}
@@ -172,50 +151,23 @@ const DiscDetailPage = () => {
             />
 
             {/* Notes */}
-            <div style={{ marginTop: '1rem' }}>
-              <label
-                style={{
-                  display: 'block',
-                  marginBottom: '0.25rem',
-                  opacity: 0.7,
-                  fontSize: '0.85rem',
-                }}
-              >
-                Notes
-              </label>
+            <div className="disc-detail__notes">
+              <label className="disc-detail__notes-label">Notes</label>
               <textarea
                 value={localNotes}
                 onChange={(e) => setLocalNotes(e.target.value)}
                 onBlur={() => void saveNotes()}
                 rows={3}
                 placeholder="Add a note..."
-                style={{
-                  width: '100%',
-                  background: 'transparent',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '4px',
-                  padding: '0.5rem',
-                  color: 'inherit',
-                  fontSize: 'inherit',
-                  resize: 'vertical',
-                  boxSizing: 'border-box',
-                }}
+                className="disc-detail__notes-textarea"
               />
               {notesError && (
                 <IonText color="danger">
-                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem' }}>
+                  <p className="disc-detail__notes-error">
                     Failed — tap to retry{' '}
                     <button
                       onClick={() => void saveNotes()}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'inherit',
-                        textDecoration: 'underline',
-                        cursor: 'pointer',
-                        padding: 0,
-                        fontSize: 'inherit',
-                      }}
+                      className="disc-detail__notes-retry"
                     >
                       Retry
                     </button>
@@ -225,7 +177,7 @@ const DiscDetailPage = () => {
             </div>
 
             {/* Delete */}
-            <div style={{ marginTop: '2rem' }}>
+            <div className="disc-detail__delete">
               <IonButton
                 expand="block"
                 color="danger"
@@ -236,9 +188,7 @@ const DiscDetailPage = () => {
               </IonButton>
               {deleteError && (
                 <IonText color="danger">
-                  <p style={{ textAlign: 'center', marginTop: '0.5rem' }}>
-                    {deleteError}
-                  </p>
+                  <p className="disc-detail__delete-error">{deleteError}</p>
                 </IonText>
               )}
             </div>

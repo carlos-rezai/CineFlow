@@ -1,0 +1,106 @@
+.disc-detail__spinner {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.disc-detail__poster {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+.disc-detail__title {
+  margin: 0 0 0.25rem;
+}
+
+.disc-detail__meta {
+  margin: 0 0 0.5rem;
+  opacity: 0.7;
+}
+
+.disc-detail__genres {
+  margin: 0 0 1rem;
+  opacity: 0.7;
+}
+
+.disc-detail__overview {
+  margin: 0 0 1rem;
+}
+
+.disc-detail__crew {
+  margin: 0 0 0.5rem;
+}
+
+.disc-detail__cast {
+  margin: 0 0 1.5rem;
+}
+
+.disc-detail__watch-count {
+  margin: 0 0 1rem;
+  opacity: 0.6;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.star-rating {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0.5rem 0;
+}
+
+.star-rating__button {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  cursor: pointer;
+  padding: 0 0.1rem;
+}
+
+.disc-detail__notes {
+  margin-top: 1rem;
+}
+
+.disc-detail__notes-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  opacity: 0.7;
+  font-size: 0.85rem;
+}
+
+.disc-detail__notes-textarea {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 0.5rem;
+  color: inherit;
+  font-size: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.disc-detail__notes-error {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+}
+
+.disc-detail__notes-retry {
+  background: none;
+  border: none;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+}
+
+.disc-detail__delete {
+  margin-top: 2rem;
+}
+
+.disc-detail__delete-error {
+  text-align: center;
+  margin-top: 0.5rem;
+}
