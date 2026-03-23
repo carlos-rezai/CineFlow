@@ -214,8 +214,12 @@ describe('useDisc', () => {
     const { result } = renderHook(() => useDisc('disc1'))
     await waitFor(() => expect(result.current.loading).toBe(false))
 
+    act(() => {
+      result.current.setLocalNotes('Great steelbook edition')
+    })
+
     await act(async () => {
-      await result.current.saveNotes('Great steelbook edition')
+      await result.current.saveNotes()
     })
 
     expect(result.current.toast).toBe('Saved')
@@ -236,12 +240,53 @@ describe('useDisc', () => {
     const { result } = renderHook(() => useDisc('disc1'))
     await waitFor(() => expect(result.current.loading).toBe(false))
 
+    act(() => {
+      result.current.setLocalNotes('Some note')
+    })
+
     await act(async () => {
-      await result.current.saveNotes('Some note')
+      await result.current.saveNotes()
     })
 
     expect(result.current.notesError).toBe(true)
     expect(result.current.toast).toBeNull()
+  })
+
+  it('localNotes is populated from disc.notes after initial fetch resolves', async () => {
+    const discWithNotes = { ...makeDisc(), notes: 'Steelbook edition' }
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          okFetch({ disc: discWithNotes, tmdbMovie: makeTmdbMovie() }),
+        ),
+    )
+
+    const { result } = renderHook(() => useDisc('disc1'))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    expect(result.current.localNotes).toBe('Steelbook edition')
+  })
+
+  it('setLocalNotes updates localNotes in the hook', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          okFetch({ disc: makeDisc(), tmdbMovie: makeTmdbMovie() }),
+        ),
+    )
+
+    const { result } = renderHook(() => useDisc('disc1'))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    act(() => {
+      result.current.setLocalNotes('Updated note')
+    })
+
+    expect(result.current.localNotes).toBe('Updated note')
   })
 
   it('deleteDisc calls DELETE and invokes onDelete callback on success', async () => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { DiscSummary } from '../types/disc'
 import type { TmdbMovieDetail } from '../types/tmdb'
 import { apiGet, apiPatch, apiDelete } from '../lib/api'
@@ -10,9 +10,11 @@ export interface UseDiscResult {
   toast: string | null
   notesError: boolean
   deleteError: string | null
+  localNotes: string
+  setLocalNotes: (v: string) => void
   toggleWatched: () => Promise<void>
   setRating: (rating: 1 | 2 | 3 | 4 | 5 | null) => Promise<void>
-  saveNotes: (notes: string) => Promise<void>
+  saveNotes: () => Promise<void>
   deleteDisc: () => Promise<void>
 }
 
@@ -27,6 +29,13 @@ export function useDisc(
   const [toast, setToast] = useState<string | null>(null)
   const [notesError, setNotesError] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [localNotes, setLocalNotes] = useState('')
+  const localNotesRef = useRef('')
+
+  const handleSetLocalNotes = (v: string) => {
+    localNotesRef.current = v
+    setLocalNotes(v)
+  }
 
   useEffect(() => {
     void (async () => {
@@ -38,6 +47,9 @@ export function useDisc(
         }>(`/api/discs/${id}`)
         setDisc(data.disc)
         setTmdbMovie(data.tmdbMovie)
+        const initial = data.disc.notes ?? ''
+        localNotesRef.current = initial
+        setLocalNotes(initial)
       } catch {
         // leave disc null, loading stops
       } finally {
@@ -88,7 +100,8 @@ export function useDisc(
     }
   }
 
-  const saveNotes = async (notes: string) => {
+  const saveNotes = async () => {
+    const notes = localNotesRef.current
     setNotesError(false)
     try {
       await apiPatch(`/api/discs/${id}`, { notes })
@@ -116,6 +129,8 @@ export function useDisc(
     toast,
     notesError,
     deleteError,
+    localNotes,
+    setLocalNotes: handleSetLocalNotes,
     toggleWatched,
     setRating,
     saveNotes,

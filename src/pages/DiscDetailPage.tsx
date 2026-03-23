@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useContext } from 'react'
 import { useParams } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import {
@@ -59,6 +59,8 @@ const DiscDetailPage = () => {
     toast,
     notesError,
     deleteError,
+    localNotes,
+    setLocalNotes,
     toggleWatched,
     setRating,
     saveNotes,
@@ -69,16 +71,7 @@ const DiscDetailPage = () => {
     () => refreshRef.current(),
   )
 
-  const [localNotes, setLocalNotes] = useState('')
-  const [notesReady, setNotesReady] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-
-  useEffect(() => {
-    if (disc && !notesReady) {
-      setLocalNotes(disc.notes ?? '')
-      setNotesReady(true)
-    }
-  }, [disc, notesReady])
 
   return (
     <IonPage>
@@ -193,7 +186,7 @@ const DiscDetailPage = () => {
               <textarea
                 value={localNotes}
                 onChange={(e) => setLocalNotes(e.target.value)}
-                onBlur={() => void saveNotes(localNotes)}
+                onBlur={() => void saveNotes()}
                 rows={3}
                 placeholder="Add a note..."
                 style={{
@@ -213,7 +206,7 @@ const DiscDetailPage = () => {
                   <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem' }}>
                     Failed — tap to retry{' '}
                     <button
-                      onClick={() => void saveNotes(localNotes)}
+                      onClick={() => void saveNotes()}
                       style={{
                         background: 'none',
                         border: 'none',
