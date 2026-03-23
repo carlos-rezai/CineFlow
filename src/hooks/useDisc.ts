@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { DiscSummary } from '../types/disc'
 import type { TmdbMovieDetail } from '../types/tmdb'
+import { apiGet, apiPatch, apiDelete } from '../lib/api'
 
 export interface UseDiscResult {
   disc: DiscSummary | null
@@ -14,8 +15,6 @@ export interface UseDiscResult {
   saveNotes: (notes: string) => Promise<void>
   deleteDisc: () => Promise<void>
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
 
 export function useDisc(
   id: string,
@@ -32,18 +31,18 @@ export function useDisc(
   useEffect(() => {
     void (async () => {
       setLoading(true)
-      const res = await fetch(`${API_BASE}/api/discs/${id}`)
-      if (!res.ok) {
+      try {
+        const data = await apiGet<{
+          disc: DiscSummary
+          tmdbMovie: TmdbMovieDetail
+        }>(`/api/discs/${id}`)
+        setDisc(data.disc)
+        setTmdbMovie(data.tmdbMovie)
+      } catch {
+        // leave disc null, loading stops
+      } finally {
         setLoading(false)
-        return
       }
-      const data = (await res.json()) as {
-        disc: DiscSummary
-        tmdbMovie: TmdbMovieDetail
-      }
-      setDisc(data.disc)
-      setTmdbMovie(data.tmdbMovie)
-      setLoading(false)
     })()
   }, [id])
 
@@ -68,16 +67,12 @@ export function useDisc(
     const patch = disc.watched
       ? { watched: false }
       : { watched: true, watchCount: next.watchCount, lastWatchedAt: now }
-    const res = await fetch(`${API_BASE}/api/discs/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patch),
-    })
-    if (!res.ok) {
+    try {
+      await apiPatch(`/api/discs/${id}`, patch)
+      onWatchedToggle?.()
+    } catch {
       setDisc(prev)
       showToast('Failed to save — changes reverted')
-    } else {
-      onWatchedToggle?.()
     }
   }
 
@@ -85,12 +80,9 @@ export function useDisc(
     if (!disc) return
     const prev = disc
     setDisc({ ...disc, rating })
-    const res = await fetch(`${API_BASE}/api/discs/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rating }),
-    })
-    if (!res.ok) {
+    try {
+      await apiPatch(`/api/discs/${id}`, { rating })
+    } catch {
       setDisc(prev)
       showToast('Failed to save — changes reverted')
     }
@@ -98,25 +90,21 @@ export function useDisc(
 
   const saveNotes = async (notes: string) => {
     setNotesError(false)
-    const res = await fetch(`${API_BASE}/api/discs/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notes }),
-    })
-    if (res.ok) {
+    try {
+      await apiPatch(`/api/discs/${id}`, { notes })
       if (disc) setDisc({ ...disc, notes })
       showToast('Saved')
-    } else {
+    } catch {
       setNotesError(true)
     }
   }
 
   const deleteDisc = async () => {
     setDeleteError(null)
-    const res = await fetch(`${API_BASE}/api/discs/${id}`, { method: 'DELETE' })
-    if (res.ok) {
+    try {
+      await apiDelete(`/api/discs/${id}`)
       onDelete?.()
-    } else {
+    } catch {
       setDeleteError('Failed to delete disc')
     }
   }
