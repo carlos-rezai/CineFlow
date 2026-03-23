@@ -176,3 +176,105 @@ describe('useAddDisc', () => {
     expect(result.current.errorMessage).not.toBeNull()
   })
 })
+
+describe('search state', () => {
+  it('setSearchQuery updates searchQuery', () => {
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.setSearchQuery('Blade Runner')
+    })
+
+    expect(result.current.searchQuery).toBe('Blade Runner')
+  })
+
+  it('search() with non-empty query fetches TMDB and populates searchResults', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: async () => [makeCandidate()],
+      }),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.setSearchQuery('Blade Runner')
+    })
+
+    await act(async () => {
+      await result.current.search()
+    })
+
+    expect(result.current.searchResults).toHaveLength(1)
+    expect(result.current.searchResults[0].tmdbId).toBe(335984)
+  })
+
+  it('search() with empty query does not fetch', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    await act(async () => {
+      await result.current.search()
+    })
+
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('failed TMDB search leaves searchResults empty', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          statusText: 'Internal Server Error',
+        }),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.setSearchQuery('Blade Runner')
+    })
+
+    await act(async () => {
+      await result.current.search()
+    })
+
+    expect(result.current.searchResults).toHaveLength(0)
+  })
+
+  it('reset() clears searchResults and searchQuery', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: async () => [makeCandidate()],
+      }),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.setSearchQuery('Blade Runner')
+    })
+
+    await act(async () => {
+      await result.current.search()
+    })
+
+    expect(result.current.searchResults).toHaveLength(1)
+
+    act(() => {
+      result.current.reset()
+    })
+
+    expect(result.current.searchQuery).toBe('')
+    expect(result.current.searchResults).toHaveLength(0)
+  })
+})

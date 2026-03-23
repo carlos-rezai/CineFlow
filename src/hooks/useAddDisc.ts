@@ -12,6 +12,9 @@ export interface UseAddDiscResult {
   format: DiscFormat | null
   isDuplicate: boolean
   errorMessage: string | null
+  searchQuery: string
+  searchResults: TmdbCandidate[]
+  isSearching: boolean
   onBarcodeDetected: (barcode: string) => Promise<void>
   onBarcodeDetectorUnsupported: () => void
   onBarcodeSet: (barcode: string) => void
@@ -19,7 +22,8 @@ export interface UseAddDiscResult {
   onCandidateRejected: () => void
   onFormatSelected: (format: DiscFormat) => void
   onConfirm: (forceAdd?: boolean) => Promise<void>
-  searchTmdb: (query: string) => Promise<TmdbCandidate[]>
+  setSearchQuery: (query: string) => void
+  search: () => Promise<void>
   reset: () => void
   onClose: () => void
 }
@@ -32,6 +36,15 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
   const [format, setFormat] = useState<DiscFormat | null>(null)
   const [isDuplicate, setIsDuplicate] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<TmdbCandidate[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const searchQueryRef = useRef('')
+
+  const handleSetSearchQuery = (query: string) => {
+    searchQueryRef.current = query
+    setSearchQuery(query)
+  }
 
   const reset = useCallback(() => {
     setState('scan')
@@ -41,6 +54,10 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
     setFormat(null)
     setIsDuplicate(false)
     setErrorMessage(null)
+    searchQueryRef.current = ''
+    setSearchQuery('')
+    setSearchResults([])
+    setIsSearching(false)
   }, [])
 
   const onBarcodeDetectorUnsupported = () => {
@@ -52,10 +69,20 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
     setBarcode(value)
   }
 
-  const searchTmdb = async (query: string): Promise<TmdbCandidate[]> => {
-    return apiGet<TmdbCandidate[]>(
-      `/api/tmdb/search?q=${encodeURIComponent(query)}`,
-    )
+  const search = async () => {
+    const query = searchQueryRef.current
+    if (!query.trim()) return
+    setIsSearching(true)
+    try {
+      const results = await apiGet<TmdbCandidate[]>(
+        `/api/tmdb/search?q=${encodeURIComponent(query)}`,
+      )
+      setSearchResults(results)
+    } catch {
+      setSearchResults([])
+    } finally {
+      setIsSearching(false)
+    }
   }
 
   const onBarcodeDetected = async (scannedBarcode: string) => {
@@ -77,6 +104,7 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
 
   const onCandidateSelected = (selected: TmdbCandidate) => {
     setCandidate(selected)
+    setSearchResults([])
   }
 
   const onCandidateRejected = () => {
@@ -115,6 +143,9 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
     format,
     isDuplicate,
     errorMessage,
+    searchQuery,
+    searchResults,
+    isSearching,
     onBarcodeDetected,
     onBarcodeDetectorUnsupported,
     onBarcodeSet,
@@ -122,7 +153,8 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
     onCandidateRejected,
     onFormatSelected,
     onConfirm,
-    searchTmdb,
+    setSearchQuery: handleSetSearchQuery,
+    search,
     reset,
     onClose,
   }

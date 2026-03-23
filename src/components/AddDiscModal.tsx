@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import {
   IonButton,
   IonButtons,
@@ -16,7 +16,6 @@ import {
 } from '@ionic/react'
 import { useAddDisc } from '../hooks/useAddDisc'
 import type { DiscFormat } from '../hooks/useAddDisc'
-import type { TmdbCandidate } from '../types/tmdb'
 
 interface BarcodeDetected {
   rawValue: string
@@ -47,6 +46,9 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
     format,
     isDuplicate,
     errorMessage,
+    searchQuery,
+    searchResults,
+    isSearching,
     onBarcodeDetected,
     onBarcodeDetectorUnsupported,
     onBarcodeSet,
@@ -54,23 +56,18 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
     onCandidateRejected,
     onFormatSelected,
     onConfirm,
-    searchTmdb,
+    setSearchQuery,
+    search,
     reset,
   } = useAddDisc(stableOnDidDismiss)
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<TmdbCandidate[]>([])
-  const [isSearching, setIsSearching] = useState(false)
 
   // Reset all state whenever the modal opens
   useEffect(() => {
     if (!isOpen) return
     reset()
-    setSearchQuery('')
-    setSearchResults([])
-    setIsSearching(false)
   }, [isOpen, reset])
 
   // Auto-close after success
@@ -144,14 +141,6 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
       streamRef.current = null
     }
   }, [state, isOpen, onBarcodeDetected, onBarcodeDetectorUnsupported])
-
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return
-    setIsSearching(true)
-    const results = await searchTmdb(searchQuery)
-    setSearchResults(results)
-    setIsSearching(false)
-  }
 
   if (state === 'scan') {
     return (
@@ -259,7 +248,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
             </IonItem>
             <IonButton
               expand="block"
-              onClick={() => void handleSearch()}
+              onClick={() => void search()}
               disabled={isSearching}
             >
               {isSearching ? <IonSpinner /> : 'Search'}
@@ -268,10 +257,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
               <IonItem
                 key={r.tmdbId}
                 button
-                onClick={() => {
-                  onCandidateSelected(r)
-                  setSearchResults([])
-                }}
+                onClick={() => onCandidateSelected(r)}
               >
                 {r.posterUrl && (
                   <img
