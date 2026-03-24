@@ -17,7 +17,10 @@ export function useCollection(): UseCollectionResult {
   const [discs, setDiscs] = useState<DiscSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<WatchedFilter>('all')
-  const [refreshToken, setRefreshToken] = useState(0)
+  // refreshToken mirrors fetchVersion: both start at 0 and increment together.
+  // Initialised at 1 so the first setRefreshToken(1) call on mount is a React
+  // no-op, preventing useStats from firing twice on initial load.
+  const [refreshToken, setRefreshToken] = useState(1)
   const fetchVersion = useRef(0)
 
   const fetchDiscs = useCallback(async () => {
