@@ -1,5 +1,6 @@
 import type { CollectionStats } from '../types/stats'
 import { formatRuntime } from '../lib/formatRuntime'
+import { filterQualifiedDirectors, capGenres } from '../lib/statsHelpers'
 import './CollectionSummary.css'
 
 interface CollectionSummaryProps {
@@ -9,8 +10,8 @@ interface CollectionSummaryProps {
 export function CollectionSummary({ stats }: CollectionSummaryProps) {
   if (!stats) return null
 
-  const qualifiedDirectors = stats.directors.filter((d) => d.discCount >= 2)
-  const topGenres = stats.genres.slice(0, 5)
+  const qualifiedDirectors = filterQualifiedDirectors(stats.directors)
+  const topGenres = capGenres(stats.genres)
 
   return (
     <div className="collection-summary">
