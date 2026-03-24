@@ -81,4 +81,33 @@ describe('useCollection', () => {
       expect(url).toContain('watched=true')
     })
   })
+
+  it('exposes refreshToken in its return value', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, json: async () => [] }),
+    )
+
+    const { result } = renderHook(() => useCollection())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    expect(typeof result.current.refreshToken).toBe('number')
+  })
+
+  it('increments refreshToken each time refresh() is called', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, json: async () => [] }),
+    )
+
+    const { result } = renderHook(() => useCollection())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    const tokenBefore = result.current.refreshToken
+    result.current.refresh()
+
+    await waitFor(() =>
+      expect(result.current.refreshToken).toBe(tokenBefore + 1),
+    )
+  })
 })
