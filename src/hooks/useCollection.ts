@@ -10,16 +10,19 @@ export interface UseCollectionResult {
   filter: WatchedFilter
   setFilter: (f: WatchedFilter) => void
   refresh: () => void
+  refreshToken: number
 }
 
 export function useCollection(): UseCollectionResult {
   const [discs, setDiscs] = useState<DiscSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<WatchedFilter>('all')
+  const [refreshToken, setRefreshToken] = useState(0)
   const fetchVersion = useRef(0)
 
   const fetchDiscs = useCallback(async () => {
     const version = ++fetchVersion.current
+    setRefreshToken(version)
     setLoading(true)
     const params = filter === 'all' ? '' : `?watched=${filter === 'watched'}`
     try {
@@ -39,5 +42,12 @@ export function useCollection(): UseCollectionResult {
     void fetchDiscs()
   }, [fetchDiscs])
 
-  return { discs, loading, filter, setFilter, refresh: fetchDiscs }
+  return {
+    discs,
+    loading,
+    filter,
+    setFilter,
+    refresh: fetchDiscs,
+    refreshToken,
+  }
 }
