@@ -5,16 +5,34 @@
 
 .summary-bar {
   display: flex;
-  gap: 16px;
+  gap: 4px;
   flex-wrap: wrap;
   font-size: 0.85rem;
   color: var(--ion-color-medium);
   margin-bottom: 12px;
 }
 
+.summary-bar span::after {
+  content: ' ·';
+  margin-left: 4px;
+}
+
+.summary-bar span:last-child::after {
+  content: none;
+}
+
 .director-breakdown,
 .genre-breakdown {
-  margin-top: 8px;
+  margin-top: 10px;
+}
+
+.breakdown-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
 }
 
 .director-row,
@@ -22,5 +40,6 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.85rem;
-  padding: 2px 0;
+  padding: 3px 0;
+  color: var(--ion-color-dark);
 }
