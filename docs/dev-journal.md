@@ -123,3 +123,46 @@
   temp file first, then use `--body-file /tmp/issue-body.md` instead
   of passing the body inline. Use this pattern for all issue creation
   going forward.
+
+## 2026-03-24
+
+- `@testing-library/jest-dom` works with Vitest despite the name — it
+  is not jest-specific. Add `import '@testing-library/jest-dom'` to a
+  setup file (`src/test-setup.ts`) and register it via `setupFiles` in
+  `vitest.config.ts`. Gives access to DOM matchers like
+  `toBeInTheDocument` and `toHaveTextContent` in all component tests.
+  One-time config change, applies to every component test in the project.
+
+- `afterEach(cleanup)` must be explicit in component tests when using
+  `@testing-library/react`. Without it, rendered components stack
+  between tests and cause false positives or interference. Add it to
+  every component test file.
+
+- The orthodox TDD approach (Martin Fowler / Kent Beck) runs a full
+  RED→GREEN loop per behaviour — write one test, make it pass, repeat.
+  The CineFlow workflow separates `/tdd` and `/build` intentionally to
+  keep a human review gate between specification and implementation.
+  Updated the tdd skill to stop at RED — write all failing tests,
+  confirm they fail for the right reasons, then hand off to `/build`.
+  Both approaches are valid; the separation is a workflow choice, not
+  a TDD correctness issue.
+
+- `fetchVersion` inside `useCollection` is a `useRef` — refs don't
+  trigger re-renders, so passing `fetchVersion.current` as a prop to
+  a second hook would be stale. Fix: mirror it as a `useState(0)`
+  counter (`refreshToken`) exposed in `UseCollectionResult`. Same
+  value as `fetchVersion`, but React-reactive. Pattern to follow
+  whenever a ref needs to propagate as a dependency to another hook.
+
+- `totalWatchCount` in the stats aggregation is the sum of all
+  `disc.watchCount` values — NOT the count of discs where
+  `watched: true`. These are different numbers. Easy to implement
+  incorrectly. Always verify the aggregation field name and intent
+  are aligned.
+
+- `gh issue create` with multi-line markdown bodies containing `#`
+  headers breaks shell quoting — the shell interprets `#` as a comment
+  character and truncates the body. Fix: write the issue body to a
+  temp file first, then use `--body-file /tmp/issue-body.md` instead
+  of passing the body inline. Use this pattern for all issue creation
+  going forward.
