@@ -90,3 +90,36 @@
   from issue #6 scope. Needs its own grill-me → PRD → plan → issues
   cycle. Key questions: browser support strategy, HTTPS requirement,
   Capacitor native camera as PWA alternative.
+
+## 2026-03-23
+
+- `fetchVersion` inside `useCollection` is a `useRef` — refs don't
+  trigger re-renders, so passing `fetchVersion.current` as a prop to
+  a second hook would be stale. Fix: mirror it as a `useState(0)`
+  counter (`refreshToken`) exposed in `UseCollectionResult`. Same
+  value as `fetchVersion`, but React-reactive. Pattern to follow
+  whenever a ref needs to propagate as a dependency to another hook.
+
+- `totalWatchCount` in the stats aggregation is the sum of all
+  `disc.watchCount` values — NOT the count of discs where
+  `watched: true`. These are different numbers. Easy to implement
+  incorrectly. Always verify the aggregation field name and intent
+  are aligned.
+
+- Stats endpoint designed to serve two consumers from day one: the UI
+  (CollectionPage summary section) and the AI pipeline (Phase 4 calls
+  `/api/stats` directly with no rework). When designing a data
+  endpoint, ask early whether the AI pipeline will need it — shapes
+  the payload richness decision.
+
+- Director completion is owned-only — no TMDB filmography lookup.
+  Full list returned by the API; UI filters to `discCount ≥ 2` for
+  display. Full "how many are you missing" comparison is a different
+  feature with its own complexity. Deferred.
+
+- `gh issue create` with multi-line markdown bodies containing `#`
+  headers breaks shell quoting — the shell interprets `#` as a comment
+  character and truncates the body. Fix: write the issue body to a
+  temp file first, then use `--body-file /tmp/issue-body.md` instead
+  of passing the body inline. Use this pattern for all issue creation
+  going forward.
