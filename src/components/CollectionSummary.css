@@ -1,0 +1,26 @@
+.collection-summary {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ion-color-light);
+}
+
+.summary-bar {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+  margin-bottom: 12px;
+}
+
+.director-breakdown,
+.genre-breakdown {
+  margin-top: 8px;
+}
+
+.director-row,
+.genre-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 2px 0;
+}

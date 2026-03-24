@@ -1,10 +1,14 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, afterEach } from 'vitest'
+import { render, screen, cleanup } from '@testing-library/react'
+
+afterEach(cleanup)
 import { CollectionSummary } from '../CollectionSummary'
 import type { CollectionStats } from '../../types/stats'
 
-const makeStats = (overrides: Partial<CollectionStats> = {}): CollectionStats => ({
+const makeStats = (
+  overrides: Partial<CollectionStats> = {},
+): CollectionStats => ({
   totalDiscs: 10,
   watchedCount: 4,
   unwatchedCount: 6,
@@ -23,9 +27,24 @@ const makeStats = (overrides: Partial<CollectionStats> = {}): CollectionStats =>
     { genre: 'Comedy', count: 1 },
   ],
   directors: [
-    { name: 'Denis Villeneuve', discCount: 3, watchedCount: 2, titles: ['Dune', 'Arrival', 'Blade Runner 2049'] },
-    { name: 'Christopher Nolan', discCount: 2, watchedCount: 1, titles: ['Inception', 'The Dark Knight'] },
-    { name: 'Solo Director', discCount: 1, watchedCount: 0, titles: ['Solo Film'] },
+    {
+      name: 'Denis Villeneuve',
+      discCount: 3,
+      watchedCount: 2,
+      titles: ['Dune', 'Arrival', 'Blade Runner 2049'],
+    },
+    {
+      name: 'Christopher Nolan',
+      discCount: 2,
+      watchedCount: 1,
+      titles: ['Inception', 'The Dark Knight'],
+    },
+    {
+      name: 'Solo Director',
+      discCount: 1,
+      watchedCount: 0,
+      titles: ['Solo Film'],
+    },
   ],
   ...overrides,
 })
@@ -38,18 +57,22 @@ describe('CollectionSummary', () => {
 
   it('shows totalDiscs, unwatchedCount, and watchedPercent', () => {
     render(<CollectionSummary stats={makeStats()} />)
-    expect(screen.getByText(/10/)).toBeInTheDocument()
-    expect(screen.getByText(/6/)).toBeInTheDocument()
-    expect(screen.getByText(/40/)).toBeInTheDocument()
+    expect(screen.getByText(/10 discs/)).toBeInTheDocument()
+    expect(screen.getByText(/6 unwatched/)).toBeInTheDocument()
+    expect(screen.getByText(/40%/)).toBeInTheDocument()
   })
 
   it('shows unwatched runtime formatted as Xh Ym', () => {
-    render(<CollectionSummary stats={makeStats({ unwatchedRuntimeMinutes: 620 })} />)
+    render(
+      <CollectionSummary stats={makeStats({ unwatchedRuntimeMinutes: 620 })} />,
+    )
     expect(screen.getByText(/10h 20m/)).toBeInTheDocument()
   })
 
   it('hides averageRating when null, shows it when present', () => {
-    const { rerender } = render(<CollectionSummary stats={makeStats({ averageRating: null })} />)
+    const { rerender } = render(
+      <CollectionSummary stats={makeStats({ averageRating: null })} />,
+    )
     expect(screen.queryByTestId('average-rating')).toBeNull()
 
     rerender(<CollectionSummary stats={makeStats({ averageRating: 4.2 })} />)

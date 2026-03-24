@@ -16,12 +16,15 @@ import {
 import { add } from 'ionicons/icons'
 import AddDiscModal from '../components/AddDiscModal'
 import DiscCard from '../components/DiscCard'
+import { CollectionSummary } from '../components/CollectionSummary'
 import { useCollection } from '../hooks/useCollection'
 import type { WatchedFilter } from '../hooks/useCollection'
+import { useStats } from '../hooks/useStats'
 import { CollectionRefreshContext } from '../context/CollectionRefreshContext'
 
 const CollectionPage = () => {
-  const { discs, filter, setFilter, refresh } = useCollection()
+  const { discs, filter, setFilter, refresh, refreshToken } = useCollection()
+  const { stats } = useStats(refreshToken)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const refreshRef = useContext(CollectionRefreshContext)
 
@@ -57,6 +60,7 @@ const CollectionPage = () => {
       </IonHeader>
 
       <IonContent>
+        <CollectionSummary stats={stats} />
         <div className="poster-grid">
           {discs.map((disc) => (
             <DiscCard key={disc._id} disc={disc} />
