@@ -166,3 +166,15 @@
   temp file first, then use `--body-file /tmp/issue-body.md` instead
   of passing the body inline. Use this pattern for all issue creation
   going forward.
+
+- `request-refactor-plan` skill does not always close the parent PRD
+  issue automatically — CC sometimes skips it. Check GitHub after
+  every refactor plan is filed and close the parent manually if needed:
+  `gh issue close <n> --comment "Feature complete — refactor planned in #<n>."`
+
+- Initialising `refreshToken` with `useState(1)` instead of
+  `useState(0)` eliminates a double-fetch on mount. When initialised
+  at 0, `setRefreshToken(1)` fires immediately on mount causing two
+  fetches. Initialising at 1 makes the first `setRefreshToken(1)` a
+  React no-op. Apply this pattern whenever a counter is used as a
+  re-fetch trigger.
