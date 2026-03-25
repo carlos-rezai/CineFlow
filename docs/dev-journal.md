@@ -178,3 +178,42 @@
   fetches. Initialising at 1 makes the first `setRefreshToken(1)` a
   React no-op. Apply this pattern whenever a counter is used as a
   re-fetch trigger.
+
+  ## 2026-03-25
+
+- `.claude/settings.local.json` must be in `.gitignore` but if the
+  file was already tracked before being ignored, git continues to
+  watch it. Fix: `git rm --cached .claude/settings.local.json` then
+  commit. `.gitignore` only prevents untracked files from being
+  tracked — it does not untrack files already in the index.
+
+- GitHub issue titles should not use conventional commit prefixes
+  (`feat:`, `fix:`, etc.) — that convention is for commit messages
+  only. Issue titles follow the pattern:
+  `[Feature Name]: [short description]`
+  e.g. `Mood Engine: AI-powered watch recommendation from mood input`
+
+- When adding `IonTabs` to an Ionic React app that previously used
+  a bare `IonRouterOutlet`, the existing route structure must be
+  migrated — the collection page moves from `/` to `/collection`.
+  This affects navigation links, `useIonViewWillEnter` hooks, and
+  back button behaviour. Treat IonTabs migration as its own dedicated
+  issue in the dependency chain, not a side effect of adding a new tab.
+
+- A tracer bullet phase that will be replaced by a subsequent issue
+  should explicitly state this in its AC:
+  "This is a tracer bullet only — issue #n upgrades this to [final
+  behaviour]. This issue is not a finished deliverable."
+  Prevents the upgrade from looking like a regression during review.
+
+- The `ai/prompts/` and `ai/pipelines/` module patterns are
+  established in the mood engine. Every subsequent AI feature follows
+  the same structure. Prompts are typed functions — no inline strings,
+  no `any` types. Pipelines live in `ai/pipelines/`, never in
+  components or hooks.
+
+- Gemini structured output (`responseMimeType: "application/json"` +
+  `responseSchema`) guarantees valid JSON matching the schema — no
+  manual JSON parsing, no fence-stripping, no try/catch around
+  JSON.parse. Use this for any AI call that needs a fixed
+  machine-readable output contract.
