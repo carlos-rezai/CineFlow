@@ -56,6 +56,7 @@ The `POST /api/mood` endpoint wired end-to-end, returning a plain JSON response 
 - [ ] If Gemini call 1 fails, endpoint returns HTTP 500
 - [ ] Pipeline tests pass with Gemini mocked: correct call order, correct data passed, correct response shape
 - [ ] Prompt functions are typed — no inline strings, no `any` types
+- [ ] **Note:** the synchronous JSON response is a tracer bullet only — Phase 3 upgrades this endpoint to NDJSON streaming. This issue is not a finished deliverable.
 
 ---
 
