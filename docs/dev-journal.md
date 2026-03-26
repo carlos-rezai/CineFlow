@@ -217,3 +217,11 @@
   manual JSON parsing, no fence-stripping, no try/catch around
   JSON.parse. Use this for any AI call that needs a fixed
   machine-readable output contract.
+
+## 2026-03-26
+
+- `GET /candidates` route must be registered before `GET /:id` in the
+  discs router. Express matches routes in order — if `/:id` comes first,
+  `/candidates` is swallowed by the dynamic segment and throws because
+  "candidates" is not a valid ObjectId. Always register static routes
+  before dynamic ones in Express routers.
