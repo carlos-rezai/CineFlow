@@ -7,6 +7,7 @@ import type {
   CreateDiscInput,
   DiscPatch,
 } from '../types/index.js'
+import type { MoodCandidate } from '../lib/scoreCandidates.js'
 
 export async function createDisc(input: CreateDiscInput): Promise<Disc> {
   const db = getDb()
@@ -97,4 +98,53 @@ export async function checkDuplicate(barcode: string): Promise<boolean> {
   const db = getDb()
   const count = await db.collection<Disc>('discs').countDocuments({ barcode })
   return count > 0
+}
+
+export async function getCandidates(): Promise<MoodCandidate[]> {
+  const db = getDb()
+  return db
+    .collection('discs')
+    .aggregate<MoodCandidate>([
+      {
+        $lookup: {
+          from: 'tmdb_movies',
+          localField: 'tmdbId',
+          foreignField: 'tmdbId',
+          as: 'tmdbData',
+        },
+      },
+      {
+        $addFields: {
+          title: { $arrayElemAt: ['$tmdbData.title', 0] },
+          year: { $arrayElemAt: ['$tmdbData.year', 0] },
+          posterUrl: { $arrayElemAt: ['$tmdbData.posterUrl', 0] },
+          genres: { $arrayElemAt: ['$tmdbData.genres', 0] },
+          runtime: { $arrayElemAt: ['$tmdbData.runtime', 0] },
+          directors: { $arrayElemAt: ['$tmdbData.directors', 0] },
+        },
+      },
+      {
+        $match: {
+          runtime: { $gt: 0 },
+          genres: { $exists: true, $ne: [] },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          tmdbId: 1,
+          title: 1,
+          year: 1,
+          posterUrl: 1,
+          genres: 1,
+          runtime: 1,
+          directors: 1,
+          watched: 1,
+          watchCount: 1,
+          lastWatchedAt: 1,
+          rating: 1,
+        },
+      },
+    ])
+    .toArray()
 }

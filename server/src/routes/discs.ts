@@ -6,6 +6,7 @@ import {
   updateDisc,
   deleteDisc,
   checkDuplicate,
+  getCandidates,
 } from '../services/discService.js'
 import { upsertTmdbMovie } from '../services/tmdbMovieService.js'
 import { getTmdbMovieDetails } from '../lib/tmdbClient.js'
@@ -53,6 +54,11 @@ router.get('/', async (req, res) => {
     watched !== undefined ? { watched: watched === 'true' } : undefined
   const discs = await listDiscs(filter)
   res.json(discs)
+})
+
+router.get('/candidates', async (_req, res) => {
+  const candidates = await getCandidates()
+  res.json(candidates)
 })
 
 router.get('/:id', async (req, res) => {
