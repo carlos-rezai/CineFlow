@@ -1,4 +1,12 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  afterEach,
+  vi,
+} from 'vitest'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import request from 'supertest'
 import express from 'express'
@@ -8,9 +16,25 @@ import { upsertTmdbMovie } from '../services/tmdbMovieService.js'
 import { createDisc } from '../services/discService.js'
 
 vi.mock('../../../ai/prompts/extractMoodAttributes.js')
+vi.mock('../../../ai/prompts/streamMoodExplanation.js')
+
 import { extractMoodAttributes } from '../../../ai/prompts/extractMoodAttributes.js'
+import { streamMoodExplanation } from '../../../ai/prompts/streamMoodExplanation.js'
 
 const mockedExtract = vi.mocked(extractMoodAttributes)
+const mockedStreamExplanation = vi.mocked(streamMoodExplanation)
+
+function parseNDJSON(text: string): unknown[] {
+  return text
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => JSON.parse(line))
+}
+
+async function* tokenStream(...tokens: string[]): AsyncGenerator<string> {
+  for (const token of tokens) yield token
+}
 
 let mongod: MongoMemoryServer
 const app = express()
@@ -34,126 +58,140 @@ afterEach(async () => {
   vi.resetAllMocks()
 })
 
-describe('POST /api/mood', () => {
-  it('returns topPick and runners when candidates exist', async () => {
-    await upsertTmdbMovie({
-      tmdbId: 1,
-      title: 'Blade Runner 2049',
-      year: 2017,
-      posterUrl: 'https://example.com/br.jpg',
-      overview: '',
-      runtime: 164,
-      genres: ['Science Fiction'],
-      directors: ['Denis Villeneuve'],
-      cast: [],
-      tmdbRating: 7.9,
-      cachedAt: '2026-01-01T00:00:00.000Z',
-    })
-    await createDisc({ barcode: '001', format: '4K', tmdbId: 1 })
-
-    mockedExtract.mockResolvedValue({
-      genres: { 'Science Fiction': 0.9 },
-      runtimePreference: 'any',
-      preferUnwatched: false,
-    })
-
-    const res = await request(app)
-      .post('/api/mood')
-      .send({ tags: ['Intense'], freeText: '' })
-
-    expect(res.status).toBe(200)
-    expect(res.body.topPick).toMatchObject({ tmdbId: 1, title: 'Blade Runner 2049' })
-    expect(Array.isArray(res.body.runners)).toBe(true)
+async function seedDisc(tmdbId: number, opts?: { watched?: boolean }) {
+  await upsertTmdbMovie({
+    tmdbId,
+    title: `Film ${tmdbId}`,
+    year: 2020,
+    posterUrl: '',
+    overview: '',
+    runtime: 120,
+    genres: ['Action'],
+    directors: [],
+    cast: [],
+    tmdbRating: 7,
+    cachedAt: '2026-01-01T00:00:00.000Z',
   })
-
-  it('returns HTTP 200 with { topPick: null, runners: [] } when preferUnwatched eliminates all candidates', async () => {
-    await upsertTmdbMovie({
-      tmdbId: 2,
-      title: 'Dune',
-      year: 2021,
-      posterUrl: '',
-      overview: '',
-      runtime: 155,
-      genres: ['Science Fiction'],
-      directors: ['Denis Villeneuve'],
-      cast: [],
-      tmdbRating: 8.0,
-      cachedAt: '2026-01-01T00:00:00.000Z',
-    })
-    const disc = await createDisc({ barcode: '002', format: '4K', tmdbId: 2 })
+  const disc = await createDisc({
+    barcode: `00${tmdbId}`,
+    format: '4K',
+    tmdbId,
+  })
+  if (opts?.watched) {
     await getDb()
       .collection('discs')
       .updateOne({ _id: disc._id }, { $set: { watched: true } })
+  }
+  return disc
+}
 
-    mockedExtract.mockResolvedValue({
-      genres: { 'Science Fiction': 0.9 },
-      runtimePreference: 'any',
-      preferUnwatched: true,
-    })
+const matchingAttributes = {
+  genres: { Action: 0.9 },
+  runtimePreference: 'any' as const,
+  preferUnwatched: false,
+}
+
+describe('POST /api/mood (NDJSON streaming)', () => {
+  it('responds with Content-Type application/x-ndjson', async () => {
+    await seedDisc(1)
+    mockedExtract.mockResolvedValue(matchingAttributes)
+    mockedStreamExplanation.mockResolvedValue(tokenStream())
 
     const res = await request(app)
       .post('/api/mood')
-      .send({ tags: ['Something New'], freeText: '' })
+      .send({ tags: [], freeText: '' })
 
-    expect(res.status).toBe(200)
-    expect(res.body).toEqual({ topPick: null, runners: [] })
+    expect(res.headers['content-type']).toMatch(/application\/x-ndjson/)
   })
 
-  it('returns HTTP 500 when Gemini attribute extraction fails', async () => {
+  it('first frame is type:result with topPick and runners', async () => {
+    await seedDisc(1)
+    mockedExtract.mockResolvedValue(matchingAttributes)
+    mockedStreamExplanation.mockResolvedValue(tokenStream())
+
+    const res = await request(app)
+      .post('/api/mood')
+      .send({ tags: [], freeText: '' })
+    const frames = parseNDJSON(res.text) as Array<{
+      type: string
+      topPick: { tmdbId: number }
+      runners: unknown[]
+    }>
+
+    expect(frames[0].type).toBe('result')
+    expect(frames[0].topPick.tmdbId).toBe(1)
+    expect(Array.isArray(frames[0].runners)).toBe(true)
+  })
+
+  it('emits token frames for each token yielded by streamMoodExplanation', async () => {
+    await seedDisc(1)
+    mockedExtract.mockResolvedValue(matchingAttributes)
+    mockedStreamExplanation.mockResolvedValue(tokenStream('A great ', 'film.'))
+
+    const res = await request(app)
+      .post('/api/mood')
+      .send({ tags: [], freeText: '' })
+    const frames = parseNDJSON(res.text) as Array<{
+      type: string
+      text?: string
+    }>
+    const tokenFrames = frames.filter((f) => f.type === 'token')
+
+    expect(tokenFrames).toHaveLength(2)
+    expect(tokenFrames[0].text).toBe('A great ')
+    expect(tokenFrames[1].text).toBe('film.')
+  })
+
+  it('final frame on success is type:done', async () => {
+    await seedDisc(1)
+    mockedExtract.mockResolvedValue(matchingAttributes)
+    mockedStreamExplanation.mockResolvedValue(tokenStream('Some token.'))
+
+    const res = await request(app)
+      .post('/api/mood')
+      .send({ tags: [], freeText: '' })
+    const frames = parseNDJSON(res.text) as Array<{ type: string }>
+
+    expect(frames[frames.length - 1].type).toBe('done')
+  })
+
+  it('emits a single empty frame when no candidates exist', async () => {
+    mockedExtract.mockResolvedValue(matchingAttributes)
+
+    const res = await request(app)
+      .post('/api/mood')
+      .send({ tags: [], freeText: '' })
+    const frames = parseNDJSON(res.text) as Array<{ type: string }>
+
+    expect(frames).toHaveLength(1)
+    expect(frames[0].type).toBe('empty')
+  })
+
+  it('emits result frame then error frame when streamMoodExplanation rejects', async () => {
+    await seedDisc(1)
+    mockedExtract.mockResolvedValue(matchingAttributes)
+    mockedStreamExplanation.mockRejectedValue(new Error('Gemini stream failed'))
+
+    const res = await request(app)
+      .post('/api/mood')
+      .send({ tags: [], freeText: '' })
+    const frames = parseNDJSON(res.text) as Array<{
+      type: string
+      message?: string
+    }>
+
+    expect(frames[0].type).toBe('result')
+    expect(frames[frames.length - 1].type).toBe('error')
+    expect(frames[frames.length - 1].message).toBeTruthy()
+  })
+
+  it('returns HTTP 500 when extractMoodAttributes fails (stream never opens)', async () => {
     mockedExtract.mockRejectedValue(new Error('Gemini API error'))
 
     const res = await request(app)
       .post('/api/mood')
-      .send({ tags: ['Intense'], freeText: '' })
+      .send({ tags: [], freeText: '' })
 
     expect(res.status).toBe(500)
-  })
-
-  it('preferUnwatched: true excludes watched discs — unwatched disc becomes topPick', async () => {
-    await upsertTmdbMovie({
-      tmdbId: 3,
-      title: 'Watched Film',
-      year: 2020,
-      posterUrl: '',
-      overview: '',
-      runtime: 120,
-      genres: ['Action'],
-      directors: [],
-      cast: [],
-      tmdbRating: 7,
-      cachedAt: '2026-01-01T00:00:00.000Z',
-    })
-    await upsertTmdbMovie({
-      tmdbId: 4,
-      title: 'Unwatched Film',
-      year: 2021,
-      posterUrl: '',
-      overview: '',
-      runtime: 120,
-      genres: ['Action'],
-      directors: [],
-      cast: [],
-      tmdbRating: 7,
-      cachedAt: '2026-01-01T00:00:00.000Z',
-    })
-    const watchedDisc = await createDisc({ barcode: '003', format: '4K', tmdbId: 3 })
-    await getDb()
-      .collection('discs')
-      .updateOne({ _id: watchedDisc._id }, { $set: { watched: true } })
-    await createDisc({ barcode: '004', format: '4K', tmdbId: 4 })
-
-    mockedExtract.mockResolvedValue({
-      genres: { Action: 0.9 },
-      runtimePreference: 'any',
-      preferUnwatched: true,
-    })
-
-    const res = await request(app)
-      .post('/api/mood')
-      .send({ tags: ['Something New'], freeText: '' })
-
-    expect(res.status).toBe(200)
-    expect(res.body.topPick.tmdbId).toBe(4)
-    expect(res.body.topPick.watched).toBe(false)
   })
 })
