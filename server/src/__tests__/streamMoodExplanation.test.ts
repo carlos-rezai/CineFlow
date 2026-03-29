@@ -40,14 +40,13 @@ describe('streamMoodExplanation()', () => {
     const mockGenerateContentStream = vi
       .fn()
       .mockResolvedValue({ stream: mockStream })
-    MockGoogleGenerativeAI.mockImplementation(
-      () =>
-        ({
-          getGenerativeModel: vi.fn().mockReturnValue({
-            generateContentStream: mockGenerateContentStream,
-          }),
-        }) as unknown as GoogleGenerativeAI,
-    )
+    MockGoogleGenerativeAI.mockImplementation(function () {
+      return {
+        getGenerativeModel: vi.fn().mockReturnValue({
+          generateContentStream: mockGenerateContentStream,
+        }),
+      }
+    } as unknown as typeof GoogleGenerativeAI)
 
     const topPick = makeCandidate({ tmdbId: 1, title: 'Mad Max: Fury Road' })
     const iterable = await streamMoodExplanation(
@@ -78,14 +77,13 @@ describe('streamMoodExplanation()', () => {
     const mockGenerateContentStream = vi
       .fn()
       .mockRejectedValue(new Error('Gemini API down'))
-    MockGoogleGenerativeAI.mockImplementation(
-      () =>
-        ({
-          getGenerativeModel: vi.fn().mockReturnValue({
-            generateContentStream: mockGenerateContentStream,
-          }),
-        }) as unknown as GoogleGenerativeAI,
-    )
+    MockGoogleGenerativeAI.mockImplementation(function () {
+      return {
+        getGenerativeModel: vi.fn().mockReturnValue({
+          generateContentStream: mockGenerateContentStream,
+        }),
+      }
+    } as unknown as typeof GoogleGenerativeAI)
 
     await expect(
       streamMoodExplanation(
