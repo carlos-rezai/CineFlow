@@ -225,3 +225,31 @@
   `/candidates` is swallowed by the dynamic segment and throws because
   "candidates" is not a valid ObjectId. Always register static routes
   before dynamic ones in Express routers.
+
+## 2026-03-30
+
+- `IonInput` is an Ionic web component custom element. In jsdom it does
+  not fire standard DOM `change` events — it fires `ionInput` (a custom
+  event). Tests using `fireEvent.change` against an `IonInput` have no
+  effect on component state. Fix: replace `IonInput` with a native
+  `<input>` for any controlled input that needs to be tested with
+  `fireEvent.change`. Visually equivalent in a real browser where Ionic
+  styles the native input inside the shadow DOM anyway. Same pattern
+  as the `onIonInput` fix from collection-core.
+
+- Design logs are immutable snapshots — they capture decisions made
+  during the grill-me session and must not be updated during build or
+  refactor. Build-phase discoveries belong in the dev-journal. If CC
+  attempts to update a design log during build, revert it and redirect
+  to the dev-journal.
+
+- `hookTimeout: 120000` added to `server/vitest.config.ts` — the
+  MongoDB binary needed more than the default 10s to download on first
+  run. One-time fix; subsequent runs are fast once the binary is cached.
+
+- Partial buffer handling in a TextDecoder loop: split the stream into
+  two chunks where the first ends mid-JSON-line. Assert that after the
+  full stream completes the fragment was correctly reassembled. The
+  intermediate state (after chunk 1, before chunk 2) cannot be reliably
+  observed in jsdom because enqueued chunks are consumed in rapid
+  succession. Final-state assertion is sufficient to guard the behaviour.
