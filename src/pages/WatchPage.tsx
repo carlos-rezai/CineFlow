@@ -10,14 +10,14 @@ import { useMoodStream } from '../hooks/useMoodStream'
 import type { MoodCandidate } from '../hooks/useMoodStream'
 
 const MOOD_TAGS = [
-  'Cozy',
   'Intense',
-  'Quick Watch',
-  'Epic',
+  'Chill',
   'Dark',
-  'Mind-Bending',
+  'Uplifting',
+  'Quick Watch',
+  'Epic Night',
   'Comfort Rewatch',
-  'Family Night',
+  'Something New',
 ] as const
 
 const WatchPage = () => {
