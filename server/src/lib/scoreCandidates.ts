@@ -1,10 +1,12 @@
 import type { MoodAttributes, MoodCandidate } from '../../../ai/types/mood.js'
+import {
+  SHORT_RUNTIME_THRESHOLD,
+  LONG_RUNTIME_MIN,
+  RUNTIME_BONUS,
+} from '../../../ai/config.js'
 
 export type { MoodAttributes, MoodCandidate }
-
-export const SHORT_RUNTIME_THRESHOLD = 100
-export const LONG_RUNTIME_MIN = 150
-export const RUNTIME_BONUS = 0.5
+export { SHORT_RUNTIME_THRESHOLD, LONG_RUNTIME_MIN, RUNTIME_BONUS }
 
 function getRuntimeBonus(
   runtime: number,
