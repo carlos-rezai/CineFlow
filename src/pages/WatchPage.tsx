@@ -7,7 +7,7 @@ import {
   IonToolbar,
 } from '@ionic/react'
 import { useMoodStream } from '../hooks/useMoodStream'
-import type { MoodCandidate } from '../hooks/useMoodStream'
+import type { MoodCandidate } from '../types/mood'
 
 const MOOD_TAGS = [
   'Intense',
