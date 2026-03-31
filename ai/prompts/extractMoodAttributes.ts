@@ -1,10 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import type { MoodAttributes } from '../../server/src/lib/scoreCandidates.js'
+import type { MoodAttributes, MoodInput } from '../types/mood.js'
 
-export interface MoodInput {
-  tags: string[]
-  freeText: string
-}
+export type { MoodInput }
 
 export async function extractMoodAttributes(
   input: MoodInput,

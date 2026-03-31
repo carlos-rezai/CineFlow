@@ -1,6 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import type { MoodInput } from './extractMoodAttributes.js'
-import type { MoodCandidate } from '../../server/src/lib/scoreCandidates.js'
+import type { MoodInput, MoodCandidate } from '../types/mood.js'
 
 export async function streamMoodExplanation(
   input: MoodInput,

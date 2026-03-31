@@ -1,26 +1,10 @@
+import type { MoodAttributes, MoodCandidate } from '../../../ai/types/mood.js'
+
+export type { MoodAttributes, MoodCandidate }
+
 export const SHORT_RUNTIME_THRESHOLD = 100
 export const LONG_RUNTIME_MIN = 150
 export const RUNTIME_BONUS = 0.5
-
-export interface MoodAttributes {
-  genres: Record<string, number>
-  runtimePreference: 'short' | 'any' | 'long'
-  preferUnwatched: boolean
-}
-
-export interface MoodCandidate {
-  tmdbId: number
-  title: string
-  year: number
-  posterUrl: string
-  genres: string[]
-  runtime: number
-  directors: string[]
-  watched: boolean
-  watchCount: number
-  lastWatchedAt: string | null
-  rating: 1 | 2 | 3 | 4 | 5 | null
-}
 
 function getRuntimeBonus(
   runtime: number,
