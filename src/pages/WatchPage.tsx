@@ -7,8 +7,8 @@ import {
   IonToolbar,
 } from '@ionic/react'
 import { useMoodStream } from '../hooks/useMoodStream'
-import type { MoodCandidate } from '../types/mood'
 import MoodInput from '../components/MoodInput'
+import MoodResult from '../components/MoodResult'
 
 const MOOD_TAGS = [
   'Intense',
@@ -61,16 +61,12 @@ const WatchPage = () => {
         )}
 
         {status === 'result' && topPick && (
-          <div className="mood-result">
-            <TopPickCard candidate={topPick} explanation={explanation} />
-            {runners.map((runner) => (
-              <div key={runner.tmdbId} data-testid="runner-card">
-                <span>{runner.title}</span>
-                <span>{runner.year}</span>
-              </div>
-            ))}
-            <button onClick={reset}>Try again</button>
-          </div>
+          <MoodResult
+            topPick={topPick}
+            runners={runners}
+            explanation={explanation}
+            onReset={reset}
+          />
         )}
 
         {status === 'empty' && (
@@ -85,20 +81,5 @@ const WatchPage = () => {
     </IonPage>
   )
 }
-
-const TopPickCard = ({
-  candidate,
-  explanation,
-}: {
-  candidate: MoodCandidate
-  explanation: string
-}) => (
-  <div className="top-pick-card">
-    <img src={candidate.posterUrl} alt={candidate.title} />
-    <span>{candidate.title}</span>
-    <span>{candidate.year}</span>
-    {explanation && <p>{explanation}</p>}
-  </div>
-)
 
 export default WatchPage
