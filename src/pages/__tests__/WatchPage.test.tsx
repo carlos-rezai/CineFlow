@@ -58,6 +58,15 @@ const emptyHook = () => ({
   reset: vi.fn(),
 })
 
+const errorHook = () => ({
+  status: 'error' as const,
+  topPick: null,
+  runners: [],
+  explanation: '',
+  submit: vi.fn(),
+  reset: vi.fn(),
+})
+
 beforeEach(() => {
   mockUseMoodStream.mockReturnValue(idleHook())
 })
@@ -117,7 +126,10 @@ describe('WatchPage — idle state', () => {
     fireEvent.click(screen.getByTestId('mood-submit'))
 
     expect(mockSubmit).toHaveBeenCalledOnce()
-    const call = mockSubmit.mock.calls[0][0] as { tags: string[]; freeText: string }
+    const call = mockSubmit.mock.calls[0][0] as {
+      tags: string[]
+      freeText: string
+    }
     expect(call.tags).toHaveLength(1)
     expect(call.freeText).toBe('something epic')
   })
@@ -174,6 +186,25 @@ describe('WatchPage — empty state', () => {
   it('clicking "Try again" calls reset()', () => {
     const mockReset = vi.fn()
     mockUseMoodStream.mockReturnValue({ ...emptyHook(), reset: mockReset })
+    render(<WatchPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+    expect(mockReset).toHaveBeenCalledOnce()
+  })
+})
+
+// --- Error state ---
+
+describe('WatchPage — error state', () => {
+  it('shows an error message', () => {
+    mockUseMoodStream.mockReturnValue(errorHook())
+    render(<WatchPage />)
+    expect(screen.getByTestId('mood-error')).toBeInTheDocument()
+  })
+
+  it('clicking "Try again" calls reset()', () => {
+    const mockReset = vi.fn()
+    mockUseMoodStream.mockReturnValue({ ...errorHook(), reset: mockReset })
     render(<WatchPage />)
 
     fireEvent.click(screen.getByRole('button', { name: /try again/i }))

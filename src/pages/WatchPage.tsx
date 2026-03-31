@@ -77,6 +77,13 @@ const WatchPage = () => {
             <button onClick={reset}>Try again</button>
           </div>
         )}
+
+        {status === 'error' && (
+          <div data-testid="mood-error" className="mood-error">
+            <p>Something went wrong.</p>
+            <button onClick={reset}>Try again</button>
+          </div>
+        )}
       </IonContent>
     </IonPage>
   )
