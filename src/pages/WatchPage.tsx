@@ -46,7 +46,7 @@ const WatchPage = () => {
           <IonTitle>Watch</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent class="ion-padding">
         {(status === 'idle' || status === 'loading') && (
           <MoodInput
             tags={MOOD_TAGS}
