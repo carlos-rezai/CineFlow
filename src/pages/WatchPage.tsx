@@ -8,6 +8,7 @@ import {
 } from '@ionic/react'
 import { useMoodStream } from '../hooks/useMoodStream'
 import type { MoodCandidate } from '../types/mood'
+import MoodInput from '../components/MoodInput'
 
 const MOOD_TAGS = [
   'Intense',
@@ -47,33 +48,16 @@ const WatchPage = () => {
       </IonHeader>
       <IonContent>
         {(status === 'idle' || status === 'loading') && (
-          <div className="mood-idle">
-            <div className="mood-tags">
-              {MOOD_TAGS.map((tag) => (
-                <button
-                  key={tag}
-                  data-testid="mood-tag"
-                  aria-pressed={selectedTags.includes(tag)}
-                  onClick={() => toggleTag(tag)}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-            <input
-              data-testid="mood-freetext"
-              placeholder="Anything else on your mind?"
-              value={freeText}
-              onChange={(e) => setFreeText(e.target.value)}
-            />
-            <button
-              data-testid="mood-submit"
-              disabled={!canSubmit}
-              onClick={handleSubmit}
-            >
-              Find my pick
-            </button>
-          </div>
+          <MoodInput
+            tags={MOOD_TAGS}
+            selectedTags={selectedTags}
+            onToggleTag={toggleTag}
+            freeText={freeText}
+            onFreeTextChange={setFreeText}
+            onSubmit={handleSubmit}
+            canSubmit={canSubmit}
+            disabled={status === 'loading'}
+          />
         )}
 
         {status === 'result' && topPick && (

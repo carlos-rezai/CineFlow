@@ -253,3 +253,18 @@
   intermediate state (after chunk 1, before chunk 2) cannot be reliably
   observed in jsdom because enqueued chunks are consumed in rapid
   succession. Final-state assertion is sufficient to guard the behaviour.
+
+## 2026-03-31
+
+- Stencil web components (IonChip, IonButton) break two test patterns in
+  jsdom: (1) `toBeDisabled()` only works on native form elements — for
+  custom elements jest-dom checks `aria-disabled`, not the `disabled`
+  attribute set by React; (2) Stencil's runtime patches custom elements
+  and intercepts attribute updates, so `aria-pressed` set by React on
+  re-render is not reflected back to the DOM attribute.
+  Fix: use native `<button>` elements for any interactive element that
+  tests interact with via `toBeDisabled()` or attribute assertions. Apply
+  CSS classes to achieve the chip/button visual. Same pattern as the
+  IonInput → native `<input>` precedent. Rule: Stencil web components are
+  safe for display-only elements in tested components; avoid them for
+  elements that tests click, check disabled state, or assert attributes on.
