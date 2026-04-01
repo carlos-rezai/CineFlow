@@ -54,6 +54,21 @@
 | **director completion**     | The count of Discs owned for a given director — owned-only, no comparison against their full filmography                  | filmography completion, director score |
 | **refreshToken**            | An integer counter passed to useStats that triggers a re-fetch when it changes; sourced from useCollection's fetchVersion | cache key, refresh flag                |
 
+## Decision Pipeline (new)
+
+| Term                          | Definition                                                                                                                                                                                                       | Aliases to avoid                                   |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| **decision pipeline**         | The autonomous recommendation system that selects what to watch based on watch history, ratings, and collection patterns — no mood input required                                                                | recommendation engine, AI picker, auto-recommend   |
+| **"Decide for me" mode**      | The Watch tab mode that triggers the decision pipeline; mutually exclusive with Mood mode                                                                                                                        | decision mode, auto mode, pick mode                |
+| **Mood mode**                 | The Watch tab mode that hosts the mood engine; the default mode on first load                                                                                                                                    | mood tab, input mode                               |
+| **mode toggle**               | The UI control at the top of the Watch tab that switches between Mood mode and "Decide for me" mode                                                                                                              | tab, switch, selector                              |
+| **scoring reason**            | A human-readable string produced by the scoring function that names one factor contributing to a candidate's rank; passed to Gemini for narration (e.g. "director completion — 3 of 4 Villeneuve films watched") | score, signal, weight, factor                      |
+| **recency penalty**           | A soft negative scoring signal applied to a candidate that appears among the last 3 watched discs                                                                                                                | watched recently, cooldown, recency filter         |
+| **director completion boost** | A soft positive scoring signal applied when the user has watched ≥50% of a director's owned films but not this disc                                                                                              | director bonus, filmography boost                  |
+| **variety penalty**           | A soft negative scoring signal applied when a candidate's genres overlap with the genres of the last 3 watched discs                                                                                             | genre penalty, genre diversity, repetition penalty |
+| **last3Watched**              | The 3 most recently watched discs, used to compute recency penalty, variety penalty, and as context for the Gemini explanation                                                                                   | recent watches, watch history, recent discs        |
+| **"Pick again"**              | The CTA shown on the Watch tab when returning to "Decide for me" mode with a cached result; triggers a fresh pipeline run without auto-running                                                                   | re-run, refresh, pick another                      |
+
 ## Mood Engine (new)
 
 | Term                  | Definition                                                                                                                                  | Aliases to avoid                       |
@@ -72,7 +87,7 @@
 | **runner**            | A high-scored MoodCandidate that is not the topPick; up to 3 runners are returned as alternatives                                           | alternative, suggestion, second choice |
 | **MoodResult**        | The complete output of the mood pipeline: topPick, up to 3 runners, and a streamed explanation for the topPick                              | mood response, recommendation result   |
 | **explanation**       | A 2–3 sentence AI-generated string streamed for the topPick, written conversationally and referencing the original MoodInput                | summary, description, reasoning        |
-| **Watch tab**         | The top-level navigation tab at `/watch` that hosts the mood engine now and the decision pipeline in Phase 4                                | Mood tab, recommendation tab           |
+| **Watch tab**         | The top-level navigation tab at `/watch` that hosts both Mood mode and "Decide for me" mode via a mode toggle (updated)                     | Mood tab, recommendation tab           |
 
 ## People
 
@@ -98,6 +113,12 @@
 - A **topPick** is selected deterministically by the scoring formula — Gemini does not choose it
 - **runners** are the next highest-scored **MoodCandidates** after the **topPick**; up to 3, returned without an AI explanation
 - The **explanation** is streamed only for the **topPick** — runners receive no AI explanation
+- The **decision pipeline** derives all signals from the full candidates array — no additional DB queries beyond `getCandidates()`
+- **last3Watched** is a subset of the candidates array sorted by `lastWatchedAt` descending, not a separate fetch
+- **scoring reasons** are produced by the scoring function and passed verbatim to Gemini — Gemini never sees raw score floats
+- **"Decide for me" mode** auto-runs the **decision pipeline** on first switch; on navigation return it shows the cached result with **"Pick again"**
+- A **recency penalty** is applied only to discs in **last3Watched** — it is a soft signal, never a hard filter
+- A **director completion boost** applies only to unwatched discs where the owning director has ≥50% of their Collection films marked watched
 
 ---
 
@@ -131,6 +152,18 @@
 > **Domain expert:** "No. Gemini produces **MoodAttributes** and streams the **explanation**. The **topPick** is chosen by the deterministic scoring formula: **genreScore** plus **runtimeBonus**. Gemini explains the choice it did not make."
 
 ---
+
+> **Dev:** "When the user switches to 'Decide for me' mode, do we show a button or just run?"
+> **Domain expert:** "Just run — switching to **'Decide for me' mode** is the intent signal. There's no separate submit. On navigation return we show the cached result and a **'Pick again'** button; we do not re-run automatically."
+
+> **Dev:** "Does the **decision pipeline** filter to unwatched discs only, like the mood engine?"
+> **Domain expert:** "No. Unwatched preference is a soft signal — a scoring bonus, not a hard filter. The **recency penalty** and **variety penalty** are also soft. Only zero candidates produces the empty state; the pipeline always produces a result otherwise."
+
+> **Dev:** "What's a **scoring reason** — is it a structured object?"
+> **Domain expert:** "It's a plain string. Something like 'director completion — 3 of 4 Villeneuve films watched' or 'not watched recently'. The scoring function produces them; Gemini reads them to write the **explanation**. They are never parsed programmatically."
+
+> **Dev:** "Does Gemini decide the **topPick** in the decision pipeline?"
+> **Domain expert:** "No — same rule as the mood engine. The scoring function chooses the **topPick** deterministically from all signals. Gemini receives the **topPick**, the **last3Watched**, and the **scoring reasons**, then narrates why the pick was made."
 
 ## Flagged ambiguities
 
