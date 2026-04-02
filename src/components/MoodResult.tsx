@@ -55,6 +55,8 @@ const TopPickCard = ({
     />
     <span className="top-pick-card__title">{candidate.title}</span>
     <span className="top-pick-card__year">{candidate.year}</span>
+    <span className="top-pick-card__runtime">{candidate.runtime} min</span>
+    <span className="top-pick-card__genres">{candidate.genres.join(', ')}</span>
     {explanation && <p className="top-pick-card__explanation">{explanation}</p>}
   </div>
 )

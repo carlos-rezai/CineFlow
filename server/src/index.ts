@@ -7,6 +7,7 @@ import tmdbRouter from './routes/tmdb.js'
 import upcRouter from './routes/upc.js'
 import statsRouter from './routes/stats.js'
 import moodRouter from './routes/mood.js'
+import decisionRouter from './routes/decision.js'
 
 const app = express()
 
@@ -22,6 +23,7 @@ app.use('/api/tmdb', tmdbRouter)
 app.use('/api/upc', upcRouter)
 app.use('/api/stats', statsRouter)
 app.use('/api/mood', moodRouter)
+app.use('/api/decision', decisionRouter)
 
 const PORT = process.env.PORT ?? 3001
 const MONGODB_URI = process.env.MONGODB_URI ?? ''
