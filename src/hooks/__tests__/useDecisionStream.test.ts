@@ -176,4 +176,48 @@ describe('useDecisionStream', () => {
     await waitFor(() => expect(result.current.status).toBe('error'))
     expect(result.current.topPick).toBeNull()
   })
+
+  it('accumulates token frames into the explanation string', async () => {
+    const candidate = makeCandidate()
+    mockFetch([
+      JSON.stringify({
+        type: 'result',
+        topPick: candidate,
+        runners: [],
+        reasons: [],
+        last3Watched: [],
+      }) + '\n',
+      JSON.stringify({ type: 'token', text: 'A compelling ' }) + '\n',
+      JSON.stringify({ type: 'token', text: 'choice.' }) + '\n',
+      JSON.stringify({ type: 'done' }) + '\n',
+    ])
+
+    const { result } = renderHook(() => useDecisionStream())
+    act(() => result.current.run())
+
+    await waitFor(() =>
+      expect(result.current.explanation).toBe('A compelling choice.'),
+    )
+  })
+
+  it('preserves topPick and runners when error frame follows result frame', async () => {
+    const candidate = makeCandidate({ title: 'Dune' })
+    mockFetch([
+      JSON.stringify({
+        type: 'result',
+        topPick: candidate,
+        runners: [],
+        reasons: [],
+        last3Watched: [],
+      }) + '\n',
+      JSON.stringify({ type: 'error', message: 'Explanation failed' }) + '\n',
+    ])
+
+    const { result } = renderHook(() => useDecisionStream())
+    act(() => result.current.run())
+
+    await waitFor(() => expect(result.current.status).toBe('result'))
+    expect(result.current.topPick?.title).toBe('Dune')
+    expect(result.current.runners).toEqual([])
+  })
 })

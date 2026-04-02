@@ -1,4 +1,22 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  afterAll,
+  afterEach,
+} from 'vitest'
+
+vi.mock('../../../ai/prompts/streamDecisionExplanation.js')
+
+import { streamDecisionExplanation } from '../../../ai/prompts/streamDecisionExplanation.js'
+
+const mockedStreamExplanation = vi.mocked(streamDecisionExplanation)
+
+async function* tokenStream(...tokens: string[]): AsyncGenerator<string> {
+  for (const token of tokens) yield token
+}
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import request from 'supertest'
 import express from 'express'
@@ -36,6 +54,7 @@ afterEach(async () => {
   const db = getDb()
   await db.collection('discs').deleteMany({})
   await db.collection('tmdb_movies').deleteMany({})
+  vi.resetAllMocks()
 })
 
 async function seedDisc(tmdbId: number) {
@@ -111,5 +130,36 @@ describe('POST /api/decision (NDJSON streaming)', () => {
 
     expect(frames).toHaveLength(1)
     expect(frames[0].type).toBe('empty')
+  })
+
+  it('emits token frames between the result frame and the done frame', async () => {
+    await seedDisc(1)
+    mockedStreamExplanation.mockResolvedValue(tokenStream('A great ', 'pick.'))
+
+    const res = await request(app).post('/api/decision').send()
+    const frames = parseNDJSON(res.text) as Array<{
+      type: string
+      text?: string
+    }>
+    const tokenFrames = frames.filter((f) => f.type === 'token')
+
+    expect(tokenFrames).toHaveLength(2)
+    expect(tokenFrames[0].text).toBe('A great ')
+    expect(tokenFrames[1].text).toBe('pick.')
+  })
+
+  it('emits result frame then error frame when streamDecisionExplanation rejects', async () => {
+    await seedDisc(1)
+    mockedStreamExplanation.mockRejectedValue(new Error('Gemini stream failed'))
+
+    const res = await request(app).post('/api/decision').send()
+    const frames = parseNDJSON(res.text) as Array<{
+      type: string
+      message?: string
+    }>
+
+    expect(frames[0].type).toBe('result')
+    expect(frames[frames.length - 1].type).toBe('error')
+    expect(frames[frames.length - 1].message).toBeTruthy()
   })
 })
