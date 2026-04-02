@@ -1,3 +1,5 @@
+import { scoreDecisionCandidates } from '../../server/src/lib/scoreDecisionCandidates.js'
+import { streamDecisionExplanation } from '../prompts/streamDecisionExplanation.js'
 import type { MoodCandidate } from '../../server/src/lib/scoreCandidates.js'
 
 export interface DecisionPipelineResult {
@@ -5,11 +7,28 @@ export interface DecisionPipelineResult {
   runners: MoodCandidate[]
   reasons: string[]
   last3Watched: MoodCandidate[]
-  explanationStream: AsyncGenerator<string>
+  explanationStream: AsyncIterable<string>
 }
 
 export async function runDecisionPipeline(
-  _getCandidatesFn: () => Promise<MoodCandidate[]>,
+  getCandidatesFn: () => Promise<MoodCandidate[]>,
 ): Promise<DecisionPipelineResult | null> {
-  throw new Error('not implemented')
+  const candidates = await getCandidatesFn()
+  const scored = scoreDecisionCandidates(candidates)
+
+  if (!scored) return null
+
+  const explanationStream = await streamDecisionExplanation(
+    scored.topPick,
+    scored.last3Watched,
+    scored.reasons,
+  )
+
+  return {
+    topPick: scored.topPick,
+    runners: scored.runners,
+    reasons: scored.reasons,
+    last3Watched: scored.last3Watched,
+    explanationStream,
+  }
 }

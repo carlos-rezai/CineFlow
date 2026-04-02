@@ -4,6 +4,7 @@ import {
   expect,
   vi,
   beforeAll,
+  beforeEach,
   afterAll,
   afterEach,
 } from 'vitest'
@@ -48,6 +49,10 @@ beforeAll(async () => {
 afterAll(async () => {
   await disconnect()
   await mongod.stop()
+})
+
+beforeEach(() => {
+  mockedStreamExplanation.mockResolvedValue(tokenStream())
 })
 
 afterEach(async () => {
@@ -148,9 +153,12 @@ describe('POST /api/decision (NDJSON streaming)', () => {
     expect(tokenFrames[1].text).toBe('pick.')
   })
 
-  it('emits result frame then error frame when streamDecisionExplanation rejects', async () => {
+  it('emits result frame then error frame when streamDecisionExplanation stream throws', async () => {
     await seedDisc(1)
-    mockedStreamExplanation.mockRejectedValue(new Error('Gemini stream failed'))
+    async function* throwingStream(): AsyncGenerator<string> {
+      throw new Error('Gemini stream failed')
+    }
+    mockedStreamExplanation.mockResolvedValue(throwingStream())
 
     const res = await request(app).post('/api/decision').send()
     const frames = parseNDJSON(res.text) as Array<{
