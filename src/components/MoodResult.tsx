@@ -5,6 +5,7 @@ interface MoodResultProps {
   runners: MoodCandidate[]
   explanation: string
   onReset: () => void
+  resetLabel?: string
 }
 
 const MoodResult = ({
@@ -12,6 +13,7 @@ const MoodResult = ({
   runners,
   explanation,
   onReset,
+  resetLabel = 'Try again',
 }: MoodResultProps) => (
   <div className="mood-result">
     <TopPickCard candidate={topPick} explanation={explanation} />
@@ -35,7 +37,7 @@ const MoodResult = ({
       </div>
     )}
     <button className="mood-reset-btn" onClick={onReset}>
-      Try again
+      {resetLabel}
     </button>
   </div>
 )

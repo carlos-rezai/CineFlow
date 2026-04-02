@@ -47,7 +47,7 @@ const WatchPage = () => {
   const [freeText, setFreeText] = useState('')
 
   useEffect(() => {
-    if (mode === 'decide') {
+    if (mode === 'decide' && decideStatus === 'idle') {
       run()
     }
   }, [mode]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -140,6 +140,7 @@ const WatchPage = () => {
                 runners={decideRunners}
                 explanation={decideExplanation}
                 onReset={run}
+                resetLabel="Pick again"
               />
             )}
 
