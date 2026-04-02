@@ -22,6 +22,7 @@ function makeCandidate(
     watchCount: 0,
     lastWatchedAt: null,
     rating: null,
+    tmdbRating: null,
     ...overrides,
   }
 }
@@ -49,9 +50,9 @@ describe('scoreCandidates()', () => {
         preferUnwatched: false,
       }
       const candidates = [
-        makeCandidate({ tmdbId: 1, genres: ['Drama'] }),           // genreScore 0.3
+        makeCandidate({ tmdbId: 1, genres: ['Drama'] }), // genreScore 0.3
         makeCandidate({ tmdbId: 2, genres: ['Action', 'Drama'] }), // genreScore 1.2
-        makeCandidate({ tmdbId: 3, genres: ['Action'] }),           // genreScore 0.9
+        makeCandidate({ tmdbId: 3, genres: ['Action'] }), // genreScore 0.9
       ]
 
       const result = scoreCandidates(attributes, candidates)
@@ -212,8 +213,16 @@ describe('scoreCandidates()', () => {
         runtimePreference: 'any',
         preferUnwatched: true,
       }
-      const watched = makeCandidate({ tmdbId: 1, genres: ['Action'], watched: true })
-      const unwatched = makeCandidate({ tmdbId: 2, genres: ['Action'], watched: false })
+      const watched = makeCandidate({
+        tmdbId: 1,
+        genres: ['Action'],
+        watched: true,
+      })
+      const unwatched = makeCandidate({
+        tmdbId: 2,
+        genres: ['Action'],
+        watched: false,
+      })
 
       const result = scoreCandidates(attributes, [watched, unwatched])
 
@@ -243,8 +252,16 @@ describe('scoreCandidates()', () => {
         runtimePreference: 'any',
         preferUnwatched: false,
       }
-      const watched = makeCandidate({ tmdbId: 1, genres: ['Action'], watched: true })
-      const unwatched = makeCandidate({ tmdbId: 2, genres: ['Action'], watched: false })
+      const watched = makeCandidate({
+        tmdbId: 1,
+        genres: ['Action'],
+        watched: true,
+      })
+      const unwatched = makeCandidate({
+        tmdbId: 2,
+        genres: ['Action'],
+        watched: false,
+      })
 
       const result = scoreCandidates(attributes, [watched, unwatched])
 

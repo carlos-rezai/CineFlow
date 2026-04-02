@@ -121,6 +121,7 @@ export async function getCandidates(): Promise<MoodCandidate[]> {
           genres: { $arrayElemAt: ['$tmdbData.genres', 0] },
           runtime: { $arrayElemAt: ['$tmdbData.runtime', 0] },
           directors: { $arrayElemAt: ['$tmdbData.directors', 0] },
+          tmdbRating: { $arrayElemAt: ['$tmdbData.tmdbRating', 0] },
         },
       },
       {
@@ -143,6 +144,7 @@ export async function getCandidates(): Promise<MoodCandidate[]> {
           watchCount: 1,
           lastWatchedAt: 1,
           rating: 1,
+          tmdbRating: 1,
         },
       },
     ])
