@@ -188,7 +188,7 @@ Then open `http://localhost:5173` in your browser.
 | Collection core (barcode scan + TMDB + MongoDB)       | ✅ Complete |
 | Collection intelligence (stats + completion tracking) | ✅ Complete |
 | Mood engine (natural language → collection match)     | ✅ Complete |
-| Decision pipeline (multi-step AI reasoning)           | 🔲 Planned  |
+| Decision pipeline (multi-step AI reasoning)           | ✅ Complete |
 
 ---
 

@@ -268,3 +268,32 @@
   IonInput → native `<input>` precedent. Rule: Stencil web components are
   safe for display-only elements in tested components; avoid them for
   elements that tests click, check disabled state, or assert attributes on.
+
+## 2026-04-01
+
+- Vite's import analysis runs before mock factories — stub files must
+  physically exist for imports to resolve, even when the module is mocked
+  in tests. When a test file imports a module that doesn't exist yet, Vite
+  throws at the transform stage before the mock factory runs. Fix: create
+  minimal stub files (empty router, hook returning idle state) to unblock
+  import resolution. Tests still fail at assertion level as expected.
+
+- When testing error frame behaviour in NDJSON streaming routes,
+  `mockRejectedValue` on the explanation prompt causes the rejection before
+  the result frame is written — the route never gets to emit
+  `{"type":"result"}`. To test the correct behaviour (result frame already
+  sent, then error frame), mock the explanation as an async generator that
+  throws mid-iteration instead. This simulates a real streaming failure that
+  happens after the pipeline has already committed to a result.
+
+- `useDecisionStream` was missing `reset()`. "Pick again" was calling
+  `run()` directly, which re-ran without returning to idle — the loading
+  state was never shown. Fix: add `reset()` to `useDecisionStream` and wire
+  "Pick again" to `reset()`. The `useEffect` gated on `status === 'idle'`
+  then triggers the re-run automatically.
+
+- NDJSON parsing loop was duplicated across `useMoodStream` and
+  `useDecisionStream` (~55 lines each). Extracted to
+  `src/lib/ndjsonStream.ts` — a plain async generator with no React
+  dependencies. Both hooks delegate to it. Any future streaming feature or
+  buffer fix touches one file only.
