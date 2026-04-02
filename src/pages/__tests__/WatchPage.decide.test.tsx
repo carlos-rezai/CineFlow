@@ -191,3 +191,64 @@ describe('WatchPage — "Decide for me" mode: empty state', () => {
     expect(screen.getByTestId('mood-empty')).toBeInTheDocument()
   })
 })
+
+// --- Decide for me mode: error state ---
+
+describe('WatchPage — "Decide for me" mode: error state', () => {
+  it('shows error state when useDecisionStream reports error', () => {
+    mockUseDecisionStream.mockReturnValue({
+      status: 'error' as const,
+      topPick: null,
+      runners: [],
+      explanation: '',
+      run: vi.fn(),
+    })
+    render(<WatchPage />)
+    fireEvent.click(screen.getByRole('button', { name: /decide for me/i }))
+
+    expect(screen.getByTestId('mood-error')).toBeInTheDocument()
+  })
+})
+
+// --- Decide for me mode: cached result / Pick again ---
+
+describe('WatchPage — "Decide for me" mode: cached result on re-enter', () => {
+  it('does not auto-run when re-entering decide mode with a cached result', async () => {
+    const mockRun = vi.fn()
+    mockUseDecisionStream.mockReturnValue(resultDecideHook({ run: mockRun }))
+    render(<WatchPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: /decide for me/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^mood$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /decide for me/i }))
+
+    await waitFor(() => expect(mockRun).not.toHaveBeenCalled())
+  })
+
+  it('"Pick again" is absent when status is idle, visible when result is cached', () => {
+    const { rerender } = render(<WatchPage />)
+    fireEvent.click(screen.getByRole('button', { name: /decide for me/i }))
+
+    expect(
+      screen.queryByRole('button', { name: /pick again/i }),
+    ).not.toBeInTheDocument()
+
+    mockUseDecisionStream.mockReturnValue(resultDecideHook())
+    rerender(<WatchPage />)
+
+    expect(
+      screen.getByRole('button', { name: /pick again/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('"Pick again" calls run()', async () => {
+    const mockRun = vi.fn()
+    mockUseDecisionStream.mockReturnValue(resultDecideHook({ run: mockRun }))
+    render(<WatchPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: /decide for me/i }))
+    fireEvent.click(screen.getByRole('button', { name: /pick again/i }))
+
+    await waitFor(() => expect(mockRun).toHaveBeenCalledOnce())
+  })
+})
