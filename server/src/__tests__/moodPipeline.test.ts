@@ -21,6 +21,7 @@ function makeCandidate(
     watchCount: 0,
     lastWatchedAt: null,
     rating: null,
+    tmdbRating: null,
     ...overrides,
   }
 }
@@ -39,7 +40,9 @@ describe('runMoodPipeline()', () => {
   it('calls extractMoodAttributes with the MoodInput', async () => {
     mockedExtract.mockResolvedValue(defaultAttributes)
     const input = { tags: ['Intense' as const], freeText: 'something gritty' }
-    const getCandidatesFn = vi.fn().mockResolvedValue([makeCandidate({ tmdbId: 1 })])
+    const getCandidatesFn = vi
+      .fn()
+      .mockResolvedValue([makeCandidate({ tmdbId: 1 })])
 
     await runMoodPipeline(input, getCandidatesFn)
 
@@ -48,7 +51,9 @@ describe('runMoodPipeline()', () => {
 
   it('calls getCandidatesFn after attribute extraction', async () => {
     mockedExtract.mockResolvedValue(defaultAttributes)
-    const getCandidatesFn = vi.fn().mockResolvedValue([makeCandidate({ tmdbId: 1 })])
+    const getCandidatesFn = vi
+      .fn()
+      .mockResolvedValue([makeCandidate({ tmdbId: 1 })])
 
     await runMoodPipeline({ tags: [], freeText: '' }, getCandidatesFn)
 
@@ -67,7 +72,10 @@ describe('runMoodPipeline()', () => {
     ]
     const getCandidatesFn = vi.fn().mockResolvedValue(candidates)
 
-    const result = await runMoodPipeline({ tags: [], freeText: '' }, getCandidatesFn)
+    const result = await runMoodPipeline(
+      { tags: [], freeText: '' },
+      getCandidatesFn,
+    )
 
     expect(result.topPick?.tmdbId).toBe(2)
   })
@@ -77,17 +85,25 @@ describe('runMoodPipeline()', () => {
     const candidates = [1, 2, 3, 4].map((id) => makeCandidate({ tmdbId: id }))
     const getCandidatesFn = vi.fn().mockResolvedValue(candidates)
 
-    const result = await runMoodPipeline({ tags: [], freeText: '' }, getCandidatesFn)
+    const result = await runMoodPipeline(
+      { tags: [], freeText: '' },
+      getCandidatesFn,
+    )
 
     expect(result.runners).toHaveLength(3)
   })
 
   it('runners never exceeds 3 even when many scored candidates exist', async () => {
     mockedExtract.mockResolvedValue(defaultAttributes)
-    const candidates = [1, 2, 3, 4, 5, 6, 7, 8].map((id) => makeCandidate({ tmdbId: id }))
+    const candidates = [1, 2, 3, 4, 5, 6, 7, 8].map((id) =>
+      makeCandidate({ tmdbId: id }),
+    )
     const getCandidatesFn = vi.fn().mockResolvedValue(candidates)
 
-    const result = await runMoodPipeline({ tags: [], freeText: '' }, getCandidatesFn)
+    const result = await runMoodPipeline(
+      { tags: [], freeText: '' },
+      getCandidatesFn,
+    )
 
     expect(result.runners.length).toBeLessThanOrEqual(3)
   })
@@ -97,7 +113,10 @@ describe('runMoodPipeline()', () => {
     const candidates = [1, 2, 3, 4].map((id) => makeCandidate({ tmdbId: id }))
     const getCandidatesFn = vi.fn().mockResolvedValue(candidates)
 
-    const result = await runMoodPipeline({ tags: [], freeText: '' }, getCandidatesFn)
+    const result = await runMoodPipeline(
+      { tags: [], freeText: '' },
+      getCandidatesFn,
+    )
 
     const runnerIds = result.runners.map((r) => r.tmdbId)
     expect(runnerIds).not.toContain(result.topPick?.tmdbId)

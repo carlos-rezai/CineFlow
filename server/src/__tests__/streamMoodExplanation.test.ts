@@ -22,6 +22,7 @@ function makeCandidate(
     watchCount: 0,
     lastWatchedAt: null,
     rating: null,
+    tmdbRating: null,
     ...overrides,
   }
 }
