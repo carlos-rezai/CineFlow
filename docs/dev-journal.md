@@ -269,7 +269,7 @@
   safe for display-only elements in tested components; avoid them for
   elements that tests click, check disabled state, or assert attributes on.
 
-## 2026-04-01
+## 2026-04-02
 
 - Vite's import analysis runs before mock factories — stub files must
   physically exist for imports to resolve, even when the module is mocked
@@ -297,3 +297,20 @@
   `src/lib/ndjsonStream.ts` — a plain async generator with no React
   dependencies. Both hooks delegate to it. Any future streaming feature or
   buffer fix touches one file only.
+
+## 2026-04-03
+
+- Ionic FAB button colors are controlled via CSS custom properties, not
+  standard background/color rules. Use `--background` and `--color` on
+  `ion-fab-button` to apply theme colors correctly.
+
+- `DiscSummary` does not include `year`, `runtime`, or `tmdbRating` —
+  those fields are only loaded in `useDisc` (DiscDetailPage). The disc
+  card metadata row (year · runtime · ★ tmdbRating) cannot be implemented
+  without a backend change to the candidates/discs endpoint and the
+  `DiscSummary` type. Deferred — tracked as a known gap.
+
+- UI skill (ui-aperture-noir) established the pattern of styling-only
+  implementation sessions. The critical rule: stop and confirm before
+  implementing anything not already in the codebase. One screen at a time,
+  test suite run between each screen.
