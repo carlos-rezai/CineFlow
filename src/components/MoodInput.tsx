@@ -20,6 +20,7 @@ const MoodInput = ({
   disabled,
 }: MoodInputProps) => (
   <div className="mood-idle">
+    <p className="text-section mood-section-label">Select Mood</p>
     <div className="mood-tags">
       {tags.map((tag) => (
         <button
@@ -33,10 +34,13 @@ const MoodInput = ({
         </button>
       ))}
     </div>
-    <input
+    <p className="text-section mood-section-label">
+      Anything else on your mind?
+    </p>
+    <textarea
       className="mood-freetext"
       data-testid="mood-freetext"
-      placeholder="Anything else on your mind?"
+      placeholder="Type anything..."
       value={freeText}
       onChange={(e) => onFreeTextChange(e.target.value)}
     />
@@ -46,7 +50,8 @@ const MoodInput = ({
       disabled={!canSubmit || disabled}
       onClick={onSubmit}
     >
-      Find my pick
+      <span>Find My Pick</span>
+      <span>→</span>
     </button>
   </div>
 )

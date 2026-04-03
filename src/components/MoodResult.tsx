@@ -18,25 +18,33 @@ const MoodResult = ({
   <div className="mood-result">
     <TopPickCard candidate={topPick} explanation={explanation} />
     {runners.length > 0 && (
-      <div className="mood-runners">
-        {runners.map((runner) => (
-          <div
-            key={runner.tmdbId}
-            className="runner-card"
-            data-testid="runner-card"
-          >
-            <img
-              src={runner.posterUrl}
-              alt={runner.title}
-              className="runner-card__poster"
-            />
-            <span className="runner-card__title">{runner.title}</span>
-            <span className="runner-card__year">{runner.year}</span>
-          </div>
-        ))}
-      </div>
+      <>
+        <p className="mood-runners-label">Other Options</p>
+        <div className="mood-runners">
+          {runners.map((runner) => (
+            <div
+              key={runner.tmdbId}
+              className="runner-card"
+              data-testid="runner-card"
+            >
+              <div className="runner-card__image-wrap">
+                <img
+                  src={runner.posterUrl}
+                  alt={runner.title}
+                  className="runner-card__poster"
+                />
+              </div>
+              <span className="runner-card__title">{runner.title}</span>
+              <span className="runner-card__genres">
+                {runner.genres.join(', ')}
+              </span>
+            </div>
+          ))}
+        </div>
+      </>
     )}
     <button className="mood-reset-btn" onClick={onReset}>
+      <span className="material-symbols-rounded">refresh</span>
       {resetLabel}
     </button>
   </div>
@@ -50,16 +58,34 @@ const TopPickCard = ({
   explanation: string
 }) => (
   <div className="top-pick-card">
-    <img
-      src={candidate.posterUrl}
-      alt={candidate.title}
-      className="top-pick-card__poster"
-    />
-    <span className="top-pick-card__title">{candidate.title}</span>
-    <span className="top-pick-card__year">{candidate.year}</span>
-    <span className="top-pick-card__runtime">{candidate.runtime} min</span>
-    <span className="top-pick-card__genres">{candidate.genres.join(', ')}</span>
-    {explanation && <p className="top-pick-card__explanation">{explanation}</p>}
+    <div className="top-pick-card__image-wrap">
+      <img
+        src={candidate.posterUrl}
+        alt={candidate.title}
+        className="top-pick-card__poster"
+      />
+      <span className="top-pick-card__badge">AI PICK</span>
+      <span className="top-pick-card__rating-badge">
+        ★ {candidate.rating ?? '—'}
+      </span>
+    </div>
+    <p className="top-pick-card__title">{candidate.title}</p>
+    <p className="top-pick-card__meta">
+      <span>{candidate.year}</span>
+      {' · '}
+      <span>{candidate.runtime} min</span>
+      {' · '}
+      <span>{candidate.genres.join(', ')}</span>
+    </p>
+    {explanation && (
+      <>
+        <p className="top-pick-card__explanation-label">
+          <span className="material-symbols-rounded">auto_awesome</span>
+          Curator's Note
+        </p>
+        <p className="top-pick-card__explanation">{explanation}</p>
+      </>
+    )}
   </div>
 )
 

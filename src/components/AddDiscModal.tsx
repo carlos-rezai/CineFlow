@@ -1,19 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react'
-import {
-  IonButton,
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonItem,
-  IonLabel,
-  IonModal,
-  IonSelect,
-  IonSelectOption,
-  IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/react'
+import { IonContent, IonModal, IonSpinner, IonText } from '@ionic/react'
 import { useAddDisc } from '../hooks/useAddDisc'
 import type { DiscFormat } from '../hooks/useAddDisc'
 import './AddDiscModal.css'
@@ -33,8 +19,13 @@ interface AddDiscModalProps {
   onDidDismiss: () => void
 }
 
+const FORMAT_OPTIONS: { value: DiscFormat; label: string }[] = [
+  { value: '4K', label: '4K ULTRA HD' },
+  { value: 'Blu-ray', label: 'BLU-RAY' },
+  { value: 'DVD', label: 'DVD' },
+]
+
 const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
-  // Stable ref — keeps latest callback without triggering effect re-runs
   const onDidDismissRef = useRef(onDidDismiss)
   onDidDismissRef.current = onDidDismiss
 
@@ -65,20 +56,17 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
-  // Reset all state whenever the modal opens
   useEffect(() => {
     if (!isOpen) return
     reset()
   }, [isOpen, reset])
 
-  // Auto-close after success
   useEffect(() => {
     if (state !== 'success') return
     const timer = setTimeout(() => onDidDismissRef.current(), 1500)
     return () => clearTimeout(timer)
   }, [state])
 
-  // Start camera scanning when modal opens in scan state
   useEffect(() => {
     if (state !== 'scan' || !isOpen) return
 
@@ -146,14 +134,12 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
   if (state === 'scan') {
     return (
       <IonModal isOpen={isOpen} onDidDismiss={stableOnDidDismiss}>
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle>Scan Barcode</IonTitle>
-            <IonButtons slot="end">
-              <IonButton onClick={stableOnDidDismiss}>Cancel</IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
+        <div className="add-disc__scan-header">
+          <p className="text-section">Scan Barcode</p>
+          <button className="add-disc__close-btn" onClick={stableOnDidDismiss}>
+            <span className="material-symbols-rounded">close</span>
+          </button>
+        </div>
         <IonContent>
           <video ref={videoRef} className="add-disc__video" playsInline muted />
         </IonContent>
@@ -164,10 +150,13 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
   if (state === 'success') {
     return (
       <IonModal isOpen={isOpen} onDidDismiss={stableOnDidDismiss}>
-        <IonContent className="ion-text-center ion-padding">
-          <IonText>
-            <h2>Disc added!</h2>
-          </IonText>
+        <IonContent>
+          <div className="add-disc__success">
+            <span className="material-symbols-rounded add-disc__success-icon">
+              check_circle
+            </span>
+            <p className="text-sub">Disc added!</p>
+          </div>
         </IonContent>
       </IonModal>
     )
@@ -175,135 +164,158 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={stableOnDidDismiss}>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Add Disc</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={stableOnDidDismiss}>Cancel</IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+      {/* Hero header */}
+      <div className="add-disc__hero">
+        <p className="text-section add-disc__hero-eyebrow">
+          Inventory Management
+        </p>
+        <h2 className="text-hero add-disc__hero-title">ADD NEW DISC</h2>
+      </div>
 
-      <IonContent className="ion-padding">
-        <IonItem>
-          <IonLabel position="stacked">Barcode</IonLabel>
-          <input
-            type="text"
-            value={barcode}
-            onChange={(e) => onBarcodeSet(e.target.value)}
-            placeholder="Enter barcode manually"
-            className="text-input"
-          />
-        </IonItem>
+      <IonContent>
+        <div className="add-disc__form">
+          {/* Barcode */}
+          <p className="text-section add-disc__section-label">
+            Scan or Enter Barcode
+          </p>
+          <div className="add-disc__input-wrap">
+            <input
+              type="text"
+              value={barcode}
+              onChange={(e) => onBarcodeSet(e.target.value)}
+              placeholder="Enter barcode"
+              className="add-disc__input"
+            />
+            <span className="material-symbols-rounded add-disc__input-icon">
+              barcode_scanner
+            </span>
+          </div>
 
-        {candidate ? (
-          <>
-            {candidate.posterUrl && (
-              <img
-                src={candidate.posterUrl}
-                alt={candidate.title}
-                className="add-disc__poster"
-              />
-            )}
-            <IonItem>
-              <IonLabel>
-                <h2>{candidate.title}</h2>
-                <p>{candidate.year}</p>
-              </IonLabel>
-            </IonItem>
-            <IonButton fill="clear" onClick={onCandidateRejected}>
-              Not the right film? Search instead
-            </IonButton>
-          </>
-        ) : (
-          <>
-            <IonItem>
-              <IonLabel position="stacked">Search for film</IonLabel>
+          {/* Divider */}
+          <div className="add-disc__divider" />
+
+          {/* Film search / candidate */}
+          {candidate ? (
+            <>
+              {candidate.posterUrl && (
+                <img
+                  src={candidate.posterUrl}
+                  alt={candidate.title}
+                  className="add-disc__candidate-poster"
+                />
+              )}
+              <p className="add-disc__candidate-title text-sub">
+                {candidate.title}
+              </p>
+              <p className="add-disc__candidate-year text-meta">
+                {candidate.year}
+              </p>
+              <button
+                className="add-disc__reject-btn"
+                onClick={onCandidateRejected}
+              >
+                Not the right film? Search instead
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-section add-disc__section-label">Film Title</p>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Enter title"
-                className="text-input"
+                className="add-disc__input"
               />
-            </IonItem>
-            <IonButton
-              expand="block"
-              onClick={() => void search()}
-              disabled={isSearching}
-            >
-              {isSearching ? <IonSpinner /> : 'Search'}
-            </IonButton>
-            {searchResults.map((r) => (
-              <IonItem
-                key={r.tmdbId}
-                button
-                onClick={() => onCandidateSelected(r)}
+              <button
+                className="add-disc__search-btn"
+                onClick={() => void search()}
+                disabled={isSearching}
               >
-                {r.posterUrl && (
-                  <img
-                    src={r.posterUrl}
-                    alt={r.title}
-                    slot="start"
-                    className="add-disc__search-result-poster"
-                  />
+                {isSearching ? (
+                  <IonSpinner />
+                ) : (
+                  <>
+                    <span className="material-symbols-rounded">search</span>
+                    SEARCH DATABASE
+                  </>
                 )}
-                <IonLabel>
-                  <h3>{r.title}</h3>
-                  <p>{r.year}</p>
-                </IonLabel>
-              </IonItem>
+              </button>
+              {searchResults.map((r) => (
+                <div
+                  key={r.tmdbId}
+                  className="add-disc__search-result"
+                  onClick={() => onCandidateSelected(r)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && onCandidateSelected(r)}
+                >
+                  {r.posterUrl && (
+                    <img
+                      src={r.posterUrl}
+                      alt={r.title}
+                      className="add-disc__search-result-poster"
+                    />
+                  )}
+                  <div>
+                    <p className="text-sub add-disc__result-title">{r.title}</p>
+                    <p className="text-meta">{r.year}</p>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+
+          {/* Media format */}
+          <p className="text-section add-disc__section-label">Media Format</p>
+          <div className="add-disc__format-group">
+            {FORMAT_OPTIONS.map(({ value, label }) => (
+              <button
+                key={value}
+                className={`add-disc__format-btn${format === value ? ' add-disc__format-btn--active' : ''}`}
+                onClick={() => onFormatSelected(value)}
+              >
+                {label}
+              </button>
             ))}
-          </>
-        )}
+          </div>
 
-        <IonItem>
-          <IonLabel>Format</IonLabel>
-          <IonSelect
-            value={format}
-            onIonChange={(e) => onFormatSelected(e.detail.value as DiscFormat)}
-            placeholder="Select format"
-          >
-            <IonSelectOption value="4K">4K</IonSelectOption>
-            <IonSelectOption value="Blu-ray">Blu-ray</IonSelectOption>
-            <IonSelectOption value="DVD">DVD</IonSelectOption>
-          </IonSelect>
-        </IonItem>
+          {isDuplicate && (
+            <IonText color="warning">
+              <p className="add-disc__warning">
+                You already own this disc — add anyway?
+              </p>
+            </IonText>
+          )}
 
-        {isDuplicate && (
-          <IonText color="warning">
-            <p>You already own this disc — add anyway?</p>
-          </IonText>
-        )}
+          {errorMessage && <p className="add-disc__error">{errorMessage}</p>}
 
-        {errorMessage && (
-          <IonText color="danger">
-            <p>{errorMessage}</p>
-          </IonText>
-        )}
-
-        {isDuplicate ? (
-          <>
-            <IonButton
-              expand="block"
-              color="warning"
-              onClick={() => void onConfirm(true)}
+          {/* Actions */}
+          {isDuplicate ? (
+            <>
+              <button
+                className="add-disc__confirm-btn"
+                onClick={() => void onConfirm(true)}
+              >
+                Add anyway →
+              </button>
+              <button
+                className="add-disc__cancel-btn"
+                onClick={stableOnDidDismiss}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button
+              className="add-disc__confirm-btn"
+              onClick={() => void onConfirm()}
+              disabled={!candidate || !format}
             >
-              Add anyway
-            </IonButton>
-            <IonButton expand="block" fill="clear" onClick={stableOnDidDismiss}>
-              Cancel
-            </IonButton>
-          </>
-        ) : (
-          <IonButton
-            expand="block"
-            onClick={() => void onConfirm()}
-            disabled={!candidate || !format}
-          >
-            Add to Collection
-          </IonButton>
-        )}
+              ADD TO COLLECTION →
+            </button>
+          )}
+        </div>
       </IonContent>
     </IonModal>
   )

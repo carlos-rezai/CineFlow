@@ -1,6 +1,5 @@
 import {
   IonApp,
-  IonIcon,
   IonLabel,
   IonRouterOutlet,
   IonTabBar,
@@ -9,12 +8,12 @@ import {
   setupIonicReact,
 } from '@ionic/react'
 import { IonReactRouter } from '@ionic/react-router'
-import { filmOutline, tvOutline } from 'ionicons/icons'
 import { Redirect, Route } from 'react-router-dom'
 import CollectionPage from './pages/CollectionPage'
 import DiscDetailPage from './pages/DiscDetailPage'
 import WatchPage from './pages/WatchPage'
 import { CollectionRefreshProvider } from './context/CollectionRefreshContext'
+import './App.css'
 
 setupIonicReact()
 
@@ -33,13 +32,17 @@ const App = () => (
               render={() => <Redirect to="/collection" />}
             />
           </IonRouterOutlet>
-          <IonTabBar slot="bottom">
+          <IonTabBar slot="bottom" className="app-tab-bar">
             <IonTabButton tab="collection" href="/collection">
-              <IonIcon icon={filmOutline} />
+              <span className="material-symbols-rounded tab-icon">
+                movie_filter
+              </span>
               <IonLabel>Collection</IonLabel>
             </IonTabButton>
             <IonTabButton tab="watch" href="/watch">
-              <IonIcon icon={tvOutline} />
+              <span className="material-symbols-rounded tab-icon">
+                auto_awesome
+              </span>
               <IonLabel>Watch</IonLabel>
             </IonTabButton>
           </IonTabBar>

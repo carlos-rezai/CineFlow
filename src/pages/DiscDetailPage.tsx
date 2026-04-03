@@ -4,14 +4,11 @@ import { useHistory } from 'react-router-dom'
 import {
   IonAlert,
   IonBackButton,
-  IonButton,
   IonButtons,
   IonContent,
   IonHeader,
   IonPage,
   IonSpinner,
-  IonText,
-  IonTitle,
   IonToast,
   IonToolbar,
 } from '@ionic/react'
@@ -32,10 +29,7 @@ const StarRating = ({
       <button
         key={star}
         onClick={() => onRate(rating === star ? null : star)}
-        className="star-rating__button"
-        style={{
-          color: rating !== null && star <= rating ? '#f4c430' : '#9e9e9e',
-        }}
+        className={`star-rating__button${rating !== null && star <= rating ? ' star-rating__button--filled' : ''}`}
         aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
       >
         ★
@@ -72,16 +66,15 @@ const DiscDetailPage = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
+      <IonHeader className="disc-detail-header">
+        <IonToolbar className="disc-detail-header__toolbar">
           <IonButtons slot="start">
             <IonBackButton defaultHref="/" />
           </IonButtons>
-          <IonTitle>{disc?.title ?? ''}</IonTitle>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent className="ion-padding">
+      <IonContent>
         {loading && (
           <div className="disc-detail__spinner">
             <IonSpinner />
@@ -90,106 +83,133 @@ const DiscDetailPage = () => {
 
         {!loading && disc && tmdbMovie && (
           <>
-            {tmdbMovie.posterUrl && (
-              <img
-                src={tmdbMovie.posterUrl}
-                alt={tmdbMovie.title}
-                className="disc-detail__poster"
+            {/* Hero */}
+            <div className="disc-detail__hero">
+              {tmdbMovie.posterUrl && (
+                <img
+                  src={tmdbMovie.posterUrl}
+                  alt={tmdbMovie.title}
+                  className="disc-detail__hero-poster"
+                />
+              )}
+              <div className="disc-detail__hero-gradient" />
+              <h1 className="disc-detail__hero-title text-hero">
+                {tmdbMovie.title}
+              </h1>
+            </div>
+
+            <div className="disc-detail__body">
+              {/* Metadata row */}
+              <div className="disc-detail__meta-row">
+                <StarRating
+                  rating={disc.rating}
+                  onRate={(r) => void setRating(r)}
+                />
+                <span className="disc-detail__meta text-meta">
+                  {tmdbMovie.year} · {tmdbMovie.runtime} MIN
+                </span>
+              </div>
+              {tmdbMovie.genres.length > 0 && (
+                <p className="disc-detail__genres text-meta">
+                  {tmdbMovie.genres.join(' / ')}
+                </p>
+              )}
+
+              {/* WATCH NOW / WATCHED button */}
+              <button
+                className={`disc-detail__watch-btn${disc.watched ? ' disc-detail__watch-btn--watched' : ''}`}
+                onClick={() => void toggleWatched()}
+              >
+                <span className="material-symbols-rounded">
+                  {disc.watched ? 'check_circle' : 'play_arrow'}
+                </span>
+                {disc.watched ? 'WATCHED' : 'WATCH NOW'}
+              </button>
+              {disc.watched && (
+                <p className="disc-detail__watch-count text-meta">
+                  WATCHED {disc.watchCount} TIME
+                  {disc.watchCount !== 1 ? 'S' : ''}
+                </p>
+              )}
+
+              {/* THE NARRATIVE */}
+              {tmdbMovie.overview && (
+                <>
+                  <p className="disc-detail__section-label text-section">
+                    The Narrative
+                  </p>
+                  <p className="disc-detail__overview text-body">
+                    {tmdbMovie.overview}
+                  </p>
+                </>
+              )}
+
+              {/* DIRECTOR */}
+              {tmdbMovie.directors.length > 0 && (
+                <>
+                  <p className="disc-detail__section-label text-section">
+                    Director
+                  </p>
+                  <p className="disc-detail__director text-sub">
+                    {tmdbMovie.directors.join(', ')}
+                  </p>
+                </>
+              )}
+
+              {/* LEAD ROLES */}
+              {tmdbMovie.cast.length > 0 && (
+                <>
+                  <p className="disc-detail__section-label text-section">
+                    Lead Roles
+                  </p>
+                  <div className="disc-detail__cast text-body">
+                    {tmdbMovie.cast.map((name) => (
+                      <p key={name}>{name}</p>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* RATE THIS FILM */}
+              <p className="disc-detail__section-label text-section">
+                Rate This Film
+              </p>
+              <StarRating
+                rating={disc.rating}
+                onRate={(r) => void setRating(r)}
               />
-            )}
 
-            <h1 className="disc-detail__title">{tmdbMovie.title}</h1>
-            <p className="disc-detail__meta">
-              {tmdbMovie.year} · {disc.format} · {tmdbMovie.runtime} min
-            </p>
-            <p className="disc-detail__meta">
-              TMDB rating: {tmdbMovie.tmdbRating.toFixed(1)}
-            </p>
-
-            {tmdbMovie.genres.length > 0 && (
-              <p className="disc-detail__genres">
-                {tmdbMovie.genres.join(', ')}
-              </p>
-            )}
-
-            <p className="disc-detail__overview">{tmdbMovie.overview}</p>
-
-            {tmdbMovie.directors.length > 0 && (
-              <p className="disc-detail__crew">
-                <strong>
-                  Director{tmdbMovie.directors.length > 1 ? 's' : ''}:
-                </strong>{' '}
-                {tmdbMovie.directors.join(', ')}
-              </p>
-            )}
-
-            {tmdbMovie.cast.length > 0 && (
-              <p className="disc-detail__cast">
-                <strong>Cast:</strong> {tmdbMovie.cast.join(', ')}
-              </p>
-            )}
-
-            {/* Watched toggle */}
-            <IonButton
-              expand="block"
-              fill={disc.watched ? 'solid' : 'outline'}
-              onClick={() => void toggleWatched()}
-              className="ion-margin-bottom"
-            >
-              {disc.watched ? '✓ Watched' : 'Mark as Watched'}
-            </IonButton>
-            {disc.watched && (
-              <p className="disc-detail__watch-count">
-                Watched {disc.watchCount} time{disc.watchCount !== 1 ? 's' : ''}
-              </p>
-            )}
-
-            {/* Star rating */}
-            <StarRating
-              rating={disc.rating}
-              onRate={(r) => void setRating(r)}
-            />
-
-            {/* Notes */}
-            <div className="disc-detail__notes">
-              <label className="disc-detail__notes-label">Notes</label>
+              {/* NOTES */}
+              <p className="disc-detail__section-label text-section">Notes</p>
               <textarea
-                value={localNotes}
+                value={localNotes ?? ''}
                 onChange={(e) => setLocalNotes(e.target.value)}
                 onBlur={() => void saveNotes()}
-                rows={3}
+                rows={4}
                 placeholder="Add a note..."
                 className="disc-detail__notes-textarea"
               />
               {notesError && (
-                <IonText color="danger">
-                  <p className="disc-detail__notes-error">
-                    Failed — tap to retry{' '}
-                    <button
-                      onClick={() => void saveNotes()}
-                      className="disc-detail__notes-retry"
-                    >
-                      Retry
-                    </button>
-                  </p>
-                </IonText>
+                <p className="disc-detail__notes-error">
+                  Failed —{' '}
+                  <button
+                    onClick={() => void saveNotes()}
+                    className="disc-detail__notes-retry"
+                  >
+                    Retry
+                  </button>
+                </p>
               )}
-            </div>
 
-            {/* Delete */}
-            <div className="disc-detail__delete">
-              <IonButton
-                expand="block"
-                color="danger"
-                fill="outline"
+              {/* REMOVE FROM COLLECTION */}
+              <button
+                className="disc-detail__remove-btn"
                 onClick={() => setShowDeleteConfirm(true)}
               >
-                Remove from Collection
-              </IonButton>
+                REMOVE FROM COLLECTION
+              </button>
               {deleteError && (
-                <IonText color="danger">
-                  <p className="disc-detail__delete-error">{deleteError}</p>
-                </IonText>
+                <p className="disc-detail__delete-error">{deleteError}</p>
               )}
             </div>
           </>

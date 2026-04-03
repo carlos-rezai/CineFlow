@@ -3,28 +3,25 @@ import {
   IonContent,
   IonFab,
   IonFabButton,
-  IonHeader,
-  IonIcon,
-  IonLabel,
   IonPage,
-  IonSegment,
-  IonSegmentButton,
-  IonTitle,
-  IonToolbar,
   useIonViewWillEnter,
 } from '@ionic/react'
-import { add } from 'ionicons/icons'
+import AppHeader from '../components/AppHeader'
 import AddDiscModal from '../components/AddDiscModal'
 import DiscCard from '../components/DiscCard'
-import { CollectionSummary } from '../components/CollectionSummary'
 import { useCollection } from '../hooks/useCollection'
 import type { WatchedFilter } from '../hooks/useCollection'
-import { useStats } from '../hooks/useStats'
 import { CollectionRefreshContext } from '../context/CollectionRefreshContext'
+import './CollectionPage.css'
+
+const FILTERS: { value: WatchedFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'unwatched', label: 'Unwatched' },
+  { value: 'watched', label: 'Watched' },
+]
 
 const CollectionPage = () => {
-  const { discs, filter, setFilter, refresh, refreshToken } = useCollection()
-  const { stats } = useStats(refreshToken)
+  const { discs, filter, setFilter, refresh } = useCollection()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const refreshRef = useContext(CollectionRefreshContext)
 
@@ -37,30 +34,28 @@ const CollectionPage = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>My Collection</IonTitle>
-        </IonToolbar>
-        <IonToolbar>
-          <IonSegment
-            value={filter}
-            onIonChange={(e) => setFilter(e.detail.value as WatchedFilter)}
-          >
-            <IonSegmentButton value="all">
-              <IonLabel>All</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="unwatched">
-              <IonLabel>Unwatched</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="watched">
-              <IonLabel>Watched</IonLabel>
-            </IonSegmentButton>
-          </IonSegment>
-        </IonToolbar>
-      </IonHeader>
+      <AppHeader />
 
       <IonContent>
-        <CollectionSummary stats={stats} />
+        <div className="collection-hero">
+          <span className="text-section collection-hero__eyebrow">
+            Private Vault
+          </span>
+          <h1 className="text-hero collection-hero__title">CINEFLOW</h1>
+        </div>
+
+        <div className="collection-filters">
+          {FILTERS.map(({ value, label }) => (
+            <button
+              key={value}
+              className={`collection-filter-btn${filter === value ? ' collection-filter-btn--active' : ''}`}
+              onClick={() => setFilter(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="poster-grid">
           {discs.map((disc) => (
             <DiscCard key={disc._id} disc={disc} />
@@ -69,7 +64,7 @@ const CollectionPage = () => {
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
           <IonFabButton onClick={() => setIsModalOpen(true)}>
-            <IonIcon icon={add} />
+            <span className="material-symbols-rounded">add</span>
           </IonFabButton>
         </IonFab>
 
