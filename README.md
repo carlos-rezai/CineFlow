@@ -67,7 +67,7 @@ Every feature follows the same sequence before a line of code is written:
 
 ```
 grill-me → design-log → ubiquitous-language → write-a-prd → prd-to-plan
-→ prd-to-issues → tdd → build → request-refactor-plan → refactor
+→ prd-to-issues → tdd → build → request-refactor-plan → refactor → ui-aperture-noir
 ```
 
 **What this means in practice:**
