@@ -189,6 +189,7 @@ Then open `http://localhost:5173` in your browser.
 | Collection intelligence (stats + completion tracking) | ✅ Complete |
 | Mood engine (natural language → collection match)     | ✅ Complete |
 | Decision pipeline (multi-step AI reasoning)           | ✅ Complete |
+| Aperture Noir design system (UI theme)                | ✅ Complete |
 
 ---
 
