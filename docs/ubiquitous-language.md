@@ -31,14 +31,17 @@
 
 ## Add Flow
 
-| Term              | Definition                                                                                     | Aliases to avoid              |
-| ----------------- | ---------------------------------------------------------------------------------------------- | ----------------------------- |
-| **Scan**          | The act of capturing a barcode using the device camera via the BarcodeDetector API             | Read, detect, capture         |
-| **UPC lookup**    | A call to a third-party UPC API that attempts to resolve a barcode to a film title string      | Barcode lookup, UPC search    |
-| **TMDB search**   | A proxied call to the TMDB search API that returns a list of TmdbCandidates for a title string | Movie search, film search     |
-| **TmdbCandidate** | A lightweight result from a TMDB search: tmdbId, title, year, posterUrl — not yet a TMDBMovie  | Result, match, suggestion     |
-| **Confirm**       | The step where the user selects and approves a TmdbCandidate before a Disc is saved            | Accept, approve, verify       |
-| **Duplicate**     | A second Disc document with the same barcode as an existing Disc in the Collection             | Copy, repeat, duplicate entry |
+| Term              | Definition                                                                                                                           | Aliases to avoid              |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- |
+| **Scan**          | The act of capturing a barcode using the device camera via the BarcodeDetector API                                                   | Read, detect, capture         |
+| **resolving**     | The transient state between Scan and Confirm when UPC lookup and TMDB search calls are in-flight; shown as a spinner to the user     | loading, fetching, pending    |
+| **camera_error**  | The state reached when camera permission is denied or the BarcodeDetector API is unsupported; offers "Enter manually" CTA to Confirm | error, unsupported, denied    |
+| **UPC lookup**    | A call to a third-party UPC API that attempts to resolve a barcode to a film title string                                            | Barcode lookup, UPC search    |
+| **Look Up**       | The explicit button in the Confirm form that triggers UPC lookup for a manually entered barcode; does not change state               | Auto-lookup, barcode search   |
+| **TMDB search**   | A proxied call to the TMDB search API that returns a list of TmdbCandidates for a title string                                       | Movie search, film search     |
+| **TmdbCandidate** | A lightweight result from a TMDB search: tmdbId, title, year, posterUrl — not yet a TMDBMovie                                        | Result, match, suggestion     |
+| **Confirm**       | The step where the user selects and approves a TmdbCandidate before a Disc is saved                                                  | Accept, approve, verify       |
+| **Duplicate**     | A second Disc document with the same barcode as an existing Disc in the Collection                                                   | Copy, repeat, duplicate entry |
 
 ## Collection Intelligence (new)
 
@@ -104,6 +107,9 @@
 - A **TMDBMovie** may be referenced by many **Discs**
 - A **Duplicate** is two **Discs** with the same **barcode** — this is valid and intentional
 - A **Disc** lifecycle begins at **Confirm**, not at **Scan**
+- **resolving** is entered immediately after a barcode is captured by **Scan**; it exits to **Confirm** on success or failure (both advance — failure silently produces no candidate)
+- **camera_error** is entered when `getUserMedia` is denied or the BarcodeDetector API is absent; it exits only to **Confirm** via the "Enter manually" CTA
+- **Look Up** fires inline within the **Confirm** state and never transitions away from it
 - **CollectionStats** aggregates all **Discs** and their linked **TMDBMovies** in a single pass
 - A **DirectorStat** groups all **Discs** whose **TMDBMovie** lists that director's name
 - **totalWatchCount** is the sum of **watchCount** across all **Discs** — not the count of **watched=true** Discs
