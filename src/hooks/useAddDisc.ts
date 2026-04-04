@@ -20,6 +20,7 @@ export interface UseAddDiscResult {
   searchQuery: string
   searchResults: TmdbCandidate[]
   isSearching: boolean
+  isLookingUp: boolean
   onBarcodeDetected: (barcode: string) => Promise<void>
   onBarcodeDetectorUnsupported: () => void
   onEnterManually: () => void
@@ -28,6 +29,7 @@ export interface UseAddDiscResult {
   onCandidateRejected: () => void
   onFormatSelected: (format: DiscFormat) => void
   onConfirm: (forceAdd?: boolean) => Promise<void>
+  onLookUp: () => Promise<void>
   setSearchQuery: (query: string) => void
   search: () => Promise<void>
   reset: () => void
@@ -45,6 +47,7 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<TmdbCandidate[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [isLookingUp, setIsLookingUp] = useState(false)
   const searchQueryRef = useRef('')
 
   const handleSetSearchQuery = (query: string) => {
@@ -64,6 +67,7 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
     setSearchQuery('')
     setSearchResults([])
     setIsSearching(false)
+    setIsLookingUp(false)
   }, [])
 
   const onBarcodeDetectorUnsupported = () => {
@@ -151,6 +155,29 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
     }
   }
 
+  const onLookUp = async () => {
+    const currentBarcode = barcodeRef.current
+    if (!currentBarcode) return
+    setIsLookingUp(true)
+    try {
+      const data = await apiGet<{ title: string | null }>(
+        `/api/upc/${currentBarcode}`,
+      )
+      if (data.title) {
+        const candidates = await apiGet<TmdbCandidate[]>(
+          `/api/tmdb/search?q=${encodeURIComponent(data.title)}`,
+        )
+        setCandidate(candidates[0] ?? null)
+      } else {
+        setCandidate(null)
+      }
+    } catch {
+      setCandidate(null)
+    } finally {
+      setIsLookingUp(false)
+    }
+  }
+
   return {
     state,
     candidate,
@@ -161,6 +188,7 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
     searchQuery,
     searchResults,
     isSearching,
+    isLookingUp,
     onBarcodeDetected,
     onBarcodeDetectorUnsupported,
     onEnterManually,
@@ -169,6 +197,7 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
     onCandidateRejected,
     onFormatSelected,
     onConfirm,
+    onLookUp,
     setSearchQuery: handleSetSearchQuery,
     search,
     reset,

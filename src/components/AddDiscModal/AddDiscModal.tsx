@@ -41,6 +41,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
     searchQuery,
     searchResults,
     isSearching,
+    isLookingUp,
     onBarcodeDetected,
     onBarcodeDetectorUnsupported,
     onEnterManually,
@@ -49,6 +50,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
     onCandidateRejected,
     onFormatSelected,
     onConfirm,
+    onLookUp,
     setSearchQuery,
     search,
     reset,
@@ -230,6 +232,13 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
               barcode_scanner
             </span>
           </div>
+          <button
+            className="add-disc__lookup-btn"
+            onClick={() => void onLookUp()}
+            disabled={isLookingUp}
+          >
+            {isLookingUp ? 'LOOKING UP…' : 'LOOK UP'}
+          </button>
 
           {/* Divider */}
           <div className="add-disc__divider" />

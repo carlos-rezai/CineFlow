@@ -295,13 +295,11 @@ describe('search state', () => {
   it('failed TMDB search leaves searchResults empty', async () => {
     vi.stubGlobal(
       'fetch',
-      vi
-        .fn()
-        .mockResolvedValueOnce({
-          ok: false,
-          status: 500,
-          statusText: 'Internal Server Error',
-        }),
+      vi.fn().mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      }),
     )
 
     const { result } = renderHook(() => useAddDisc(onClose))
@@ -366,6 +364,8 @@ describe('onLookUp', () => {
     const { result } = renderHook(() => useAddDisc(onClose))
 
     act(() => {
+      result.current.onBarcodeDetectorUnsupported()
+      result.current.onEnterManually()
       result.current.onBarcodeSet('012569803638')
     })
 
@@ -390,6 +390,8 @@ describe('onLookUp', () => {
     const { result } = renderHook(() => useAddDisc(onClose))
 
     act(() => {
+      result.current.onBarcodeDetectorUnsupported()
+      result.current.onEnterManually()
       result.current.onBarcodeSet('000000000000')
     })
 
@@ -411,6 +413,8 @@ describe('onLookUp', () => {
     const { result } = renderHook(() => useAddDisc(onClose))
 
     act(() => {
+      result.current.onBarcodeDetectorUnsupported()
+      result.current.onEnterManually()
       result.current.onBarcodeSet('012569803638')
     })
 
