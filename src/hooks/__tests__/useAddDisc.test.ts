@@ -245,6 +245,14 @@ describe('useAddDisc', () => {
   })
 })
 
+describe('format default', () => {
+  it('format is 4K on initial render', () => {
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    expect(result.current.format).toBe('4K')
+  })
+})
+
 describe('search state', () => {
   it('setSearchQuery updates searchQuery', () => {
     const { result } = renderHook(() => useAddDisc(onClose))
@@ -290,6 +298,58 @@ describe('search state', () => {
     })
 
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('failed TMDB search sets errorMessage', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      }),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.setSearchQuery('Blade Runner')
+    })
+
+    await act(async () => {
+      await result.current.search()
+    })
+
+    expect(result.current.errorMessage).not.toBeNull()
+  })
+
+  it('reset() clears errorMessage set by a failed search', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      }),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.setSearchQuery('Blade Runner')
+    })
+
+    await act(async () => {
+      await result.current.search()
+    })
+
+    expect(result.current.errorMessage).not.toBeNull()
+
+    act(() => {
+      result.current.reset()
+    })
+
+    expect(result.current.errorMessage).toBeNull()
   })
 
   it('failed TMDB search leaves searchResults empty', async () => {
