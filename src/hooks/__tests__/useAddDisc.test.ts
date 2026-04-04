@@ -346,3 +346,145 @@ describe('search state', () => {
     expect(result.current.searchResults).toHaveLength(0)
   })
 })
+
+describe('onLookUp', () => {
+  it('populates candidate when UPC lookup returns a title and TMDB search returns results', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ title: 'Blade Runner 2049' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => [makeCandidate()],
+        }),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.onBarcodeSet('012569803638')
+    })
+
+    await act(async () => {
+      await result.current.onLookUp()
+    })
+
+    expect(result.current.candidate?.tmdbId).toBe(335984)
+    expect(result.current.isLookingUp).toBe(false)
+    expect(result.current.state).toBe('confirm')
+  })
+
+  it('leaves candidate null and clears isLookingUp when UPC returns no title', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ title: null }),
+      }),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.onBarcodeSet('000000000000')
+    })
+
+    await act(async () => {
+      await result.current.onLookUp()
+    })
+
+    expect(result.current.candidate).toBeNull()
+    expect(result.current.isLookingUp).toBe(false)
+    expect(result.current.state).toBe('confirm')
+  })
+
+  it('leaves candidate null and clears isLookingUp on network failure, does not throw', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValueOnce(new Error('Network error')),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.onBarcodeSet('012569803638')
+    })
+
+    await act(async () => {
+      await result.current.onLookUp()
+    })
+
+    expect(result.current.candidate).toBeNull()
+    expect(result.current.isLookingUp).toBe(false)
+    expect(result.current.state).toBe('confirm')
+  })
+
+  it('isLookingUp is true while lookup is in-flight and false after', async () => {
+    let resolveUpc!: (value: unknown) => void
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockReturnValueOnce(
+        new Promise((resolve) => {
+          resolveUpc = resolve
+        }),
+      ),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.onBarcodeSet('012569803638')
+    })
+
+    act(() => {
+      void result.current.onLookUp()
+    })
+
+    expect(result.current.isLookingUp).toBe(true)
+
+    await act(async () => {
+      resolveUpc({ ok: true, json: async () => ({ title: null }) })
+    })
+
+    expect(result.current.isLookingUp).toBe(false)
+  })
+
+  it('reset() clears isLookingUp', async () => {
+    let resolveUpc!: (value: unknown) => void
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockReturnValueOnce(
+        new Promise((resolve) => {
+          resolveUpc = resolve
+        }),
+      ),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.onBarcodeSet('012569803638')
+    })
+
+    act(() => {
+      void result.current.onLookUp()
+    })
+
+    expect(result.current.isLookingUp).toBe(true)
+
+    act(() => {
+      result.current.reset()
+    })
+
+    expect(result.current.isLookingUp).toBe(false)
+
+    // resolve the dangling promise to avoid unhandled rejection
+    await act(async () => {
+      resolveUpc({ ok: true, json: async () => ({ title: null }) })
+    })
+  })
+})
