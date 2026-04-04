@@ -43,6 +43,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
     isSearching,
     onBarcodeDetected,
     onBarcodeDetectorUnsupported,
+    onEnterManually,
     onBarcodeSet,
     onCandidateSelected,
     onCandidateRejected,
@@ -142,6 +143,45 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
         </div>
         <IonContent>
           <video ref={videoRef} className="add-disc__video" playsInline muted />
+        </IonContent>
+      </IonModal>
+    )
+  }
+
+  if (state === 'resolving') {
+    return (
+      <IonModal isOpen={isOpen} onDidDismiss={stableOnDidDismiss}>
+        <div className="add-disc__scan-header">
+          <p className="text-section">Scan Barcode</p>
+          <button className="add-disc__close-btn" onClick={reset}>
+            <span className="material-symbols-rounded">close</span>
+          </button>
+        </div>
+        <IonContent>
+          <div className="add-disc__resolving">
+            <span className="add-disc__resolving-spinner" />
+            <p className="text-sub">Looking up disc…</p>
+          </div>
+        </IonContent>
+      </IonModal>
+    )
+  }
+
+  if (state === 'camera_error') {
+    return (
+      <IonModal isOpen={isOpen} onDidDismiss={stableOnDidDismiss}>
+        <IonContent>
+          <div className="add-disc__camera-error">
+            <span className="material-symbols-rounded add-disc__camera-error-icon">
+              no_photography
+            </span>
+            <p className="text-sub add-disc__camera-error-message">
+              Camera access denied — enter barcode manually
+            </p>
+            <button className="add-disc__confirm-btn" onClick={onEnterManually}>
+              Enter manually →
+            </button>
+          </div>
         </IonContent>
       </IonModal>
     )

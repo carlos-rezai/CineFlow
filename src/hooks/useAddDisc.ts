@@ -2,7 +2,12 @@ import { useState, useCallback, useRef } from 'react'
 import type { TmdbCandidate } from '../types/tmdb'
 import { apiGet, apiPost, ApiError } from '../lib/api'
 
-export type AddDiscState = 'scan' | 'confirm' | 'success' | 'error'
+export type AddDiscState =
+  | 'scan'
+  | 'resolving'
+  | 'confirm'
+  | 'success'
+  | 'camera_error'
 export type DiscFormat = '4K' | 'Blu-ray' | 'DVD'
 
 export interface UseAddDiscResult {
@@ -17,6 +22,7 @@ export interface UseAddDiscResult {
   isSearching: boolean
   onBarcodeDetected: (barcode: string) => Promise<void>
   onBarcodeDetectorUnsupported: () => void
+  onEnterManually: () => void
   onBarcodeSet: (barcode: string) => void
   onCandidateSelected: (candidate: TmdbCandidate) => void
   onCandidateRejected: () => void
@@ -61,6 +67,10 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
   }, [])
 
   const onBarcodeDetectorUnsupported = () => {
+    setState('camera_error')
+  }
+
+  const onEnterManually = () => {
     setState('confirm')
   }
 
@@ -88,15 +98,20 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
   const onBarcodeDetected = async (scannedBarcode: string) => {
     barcodeRef.current = scannedBarcode
     setBarcode(scannedBarcode)
-    const data = await apiGet<{ title: string | null }>(
-      `/api/upc/${scannedBarcode}`,
-    )
-    if (data.title) {
-      const candidates = await apiGet<TmdbCandidate[]>(
-        `/api/tmdb/search?q=${encodeURIComponent(data.title)}`,
+    setState('resolving')
+    try {
+      const data = await apiGet<{ title: string | null }>(
+        `/api/upc/${scannedBarcode}`,
       )
-      setCandidate(candidates[0] ?? null)
-    } else {
+      if (data.title) {
+        const candidates = await apiGet<TmdbCandidate[]>(
+          `/api/tmdb/search?q=${encodeURIComponent(data.title)}`,
+        )
+        setCandidate(candidates[0] ?? null)
+      } else {
+        setCandidate(null)
+      }
+    } catch {
       setCandidate(null)
     }
     setState('confirm')
@@ -148,6 +163,7 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
     isSearching,
     onBarcodeDetected,
     onBarcodeDetectorUnsupported,
+    onEnterManually,
     onBarcodeSet,
     onCandidateSelected,
     onCandidateRejected,
