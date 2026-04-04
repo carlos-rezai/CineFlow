@@ -49,6 +49,13 @@ export async function listDiscs(filter?: {
             $ifNull: [{ $arrayElemAt: ['$tmdbData.posterUrl', 0] }, ''],
           },
           title: { $ifNull: [{ $arrayElemAt: ['$tmdbData.title', 0] }, ''] },
+          year: { $ifNull: [{ $arrayElemAt: ['$tmdbData.year', 0] }, null] },
+          runtime: {
+            $ifNull: [{ $arrayElemAt: ['$tmdbData.runtime', 0] }, null],
+          },
+          tmdbRating: {
+            $ifNull: [{ $arrayElemAt: ['$tmdbData.tmdbRating', 0] }, null],
+          },
         },
       },
       { $project: { tmdbData: 0 } },

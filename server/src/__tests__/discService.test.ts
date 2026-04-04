@@ -143,6 +143,30 @@ describe('discService', () => {
     expect(tmdbMovie).not.toBeNull()
   })
 
+  it('listDiscs includes year, runtime, and tmdbRating from the joined TMDBMovie', async () => {
+    await upsertTmdbMovie({
+      tmdbId: 335984,
+      title: 'Blade Runner 2049',
+      year: 2017,
+      posterUrl: 'https://image.tmdb.org/t/p/w500/test.jpg',
+      overview: 'A blade runner discovers a secret.',
+      runtime: 164,
+      genres: ['Science Fiction'],
+      directors: ['Denis Villeneuve'],
+      cast: ['Ryan Gosling'],
+      tmdbRating: 7.9,
+      cachedAt: '2026-01-01T00:00:00.000Z',
+    })
+    await createDisc({ barcode: '012569803638', format: '4K', tmdbId: 335984 })
+
+    const discs = await listDiscs()
+
+    expect(discs).toHaveLength(1)
+    expect(discs[0].year).toBe(2017)
+    expect(discs[0].runtime).toBe(164)
+    expect(discs[0].tmdbRating).toBe(7.9)
+  })
+
   it('checkDuplicate returns true when a disc with that barcode exists, false otherwise', async () => {
     await createDisc({ barcode: '012569803638', format: '4K', tmdbId: 335984 })
 

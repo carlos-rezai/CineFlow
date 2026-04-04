@@ -54,6 +54,9 @@ export type TMDBMovieInput = Omit<TMDBMovie, '_id'>
 export type DiscListItem = Disc & {
   posterUrl: string
   title: string
+  year: number | null
+  runtime: number | null
+  tmdbRating: number | null
 }
 
 export interface DirectorStat {
