@@ -41,7 +41,7 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
   const [candidate, setCandidate] = useState<TmdbCandidate | null>(null)
   const [barcode, setBarcode] = useState('')
   const barcodeRef = useRef('')
-  const [format, setFormat] = useState<DiscFormat | null>(null)
+  const [format, setFormat] = useState<DiscFormat | null>('4K')
   const [isDuplicate, setIsDuplicate] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -94,6 +94,7 @@ export function useAddDisc(onClose: () => void): UseAddDiscResult {
       setSearchResults(results)
     } catch {
       setSearchResults([])
+      setErrorMessage('Search failed — check your connection and try again')
     } finally {
       setIsSearching(false)
     }

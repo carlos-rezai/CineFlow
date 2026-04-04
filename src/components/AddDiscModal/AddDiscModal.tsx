@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react'
-import { IonContent, IonModal, IonSpinner, IonText } from '@ionic/react'
+import { IonContent, IonModal } from '@ionic/react'
 import { useAddDisc } from '../../hooks/useAddDisc'
 import type { DiscFormat } from '../../hooks/useAddDisc'
 import './AddDiscModal.css'
@@ -282,7 +282,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
                 disabled={isSearching}
               >
                 {isSearching ? (
-                  <IonSpinner />
+                  'SEARCHING…'
                 ) : (
                   <>
                     <span className="material-symbols-rounded">search</span>
@@ -330,11 +330,9 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
           </div>
 
           {isDuplicate && (
-            <IonText color="warning">
-              <p className="add-disc__warning">
-                You already own this disc — add anyway?
-              </p>
-            </IonText>
+            <p className="add-disc__warning">
+              You already own this disc — add anyway?
+            </p>
           )}
 
           {errorMessage && <p className="add-disc__error">{errorMessage}</p>}
