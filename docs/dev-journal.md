@@ -314,3 +314,35 @@
   implementation sessions. The critical rule: stop and confirm before
   implementing anything not already in the codebase. One screen at a time,
   test suite run between each screen.
+
+  ## 2026-04-04
+
+- `BarcodeDetector` API exists in `window` on some Android Chrome versions
+  but fails at runtime — `getSupportedFormats()` hangs indefinitely and the
+  constructor throws. Fix: race `getSupportedFormats()` against a 2 second
+  timeout. If it times out, returns empty, or the constructor throws, fall
+  through to `camera_error` state cleanly. Never trust `'BarcodeDetector' in
+window` alone as a supported check.
+
+- Camera scanning via the browser `BarcodeDetector` API is unreliable across
+  Android devices. For production-grade barcode scanning, Capacitor +
+  `@capacitor-mlkit/barcode-scanning` is the correct approach — it uses
+  native Android ML Kit instead of the browser API. Deferred as a future
+  enhancement.
+
+- To expose the Vite dev server to other devices on the local network, add
+  `host: '0.0.0.0'` and `allowedHosts: true` to `server` in `vite.config.ts`.
+  Use ngrok (`ngrok http 5173`) for HTTPS tunneling when camera access is
+  needed — Android Chrome requires HTTPS for `getUserMedia` on non-localhost
+  origins.
+
+- GitHub issue title naming convention has drifted — `feat:` prefix appeared
+  on parent PRD issues. Fix: add explicit title format rule to the
+  `write-a-prd` skill. Correct format: `[Feature Name]: [short description]`.
+  Conventional commit prefixes belong on commit messages only, not issue
+  titles.
+
+- USB debugging remote inspection via `chrome://inspect/#devices` requires
+  a data-capable USB cable — charge-only cables will not show the device.
+  Alternative: render debug output directly in the UI using temporary state
+  variables when USB debugging is not available.
