@@ -190,6 +190,7 @@ Then open `http://localhost:5173` in your browser.
 | Mood engine (natural language → collection match)     | ✅ Complete |
 | Decision pipeline (multi-step AI reasoning)           | ✅ Complete |
 | Aperture Noir design system (UI theme)                | ✅ Complete |
+| Barcode scanning (camera-based disc lookup)           | 🔲 Planned  |
 
 ---
 
