@@ -17,7 +17,7 @@ const makeCandidate = () => ({
 })
 
 describe('useAddDisc', () => {
-  it('transitions to confirm state when BarcodeDetector is unsupported', () => {
+  it('transitions to camera_error state when BarcodeDetector is unsupported', () => {
     const { result } = renderHook(() => useAddDisc(onClose))
 
     expect(result.current.state).toBe('scan')
@@ -26,7 +26,63 @@ describe('useAddDisc', () => {
       result.current.onBarcodeDetectorUnsupported()
     })
 
+    expect(result.current.state).toBe('camera_error')
+  })
+
+  it('transitions from camera_error to confirm when user chooses to enter manually', () => {
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      result.current.onBarcodeDetectorUnsupported()
+    })
+
+    expect(result.current.state).toBe('camera_error')
+
+    act(() => {
+      result.current.onEnterManually()
+    })
+
     expect(result.current.state).toBe('confirm')
+  })
+
+  it('transitions to resolving state while UPC lookup is in-flight', async () => {
+    let resolveUpc!: (value: unknown) => void
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockReturnValueOnce(
+        new Promise((resolve) => {
+          resolveUpc = resolve
+        }),
+      ),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    act(() => {
+      void result.current.onBarcodeDetected('012569803638')
+    })
+
+    expect(result.current.state).toBe('resolving')
+
+    await act(async () => {
+      resolveUpc({ ok: true, json: async () => ({ title: null }) })
+    })
+  })
+
+  it('advances to confirm with no candidate when UPC lookup throws a network error', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValueOnce(new Error('Network error')),
+    )
+
+    const { result } = renderHook(() => useAddDisc(onClose))
+
+    await act(async () => {
+      await result.current.onBarcodeDetected('012569803638')
+    })
+
+    expect(result.current.state).toBe('confirm')
+    expect(result.current.candidate).toBeNull()
   })
 
   it('fires UPC lookup on barcode detected, pre-populates candidate, advances to confirm', async () => {
@@ -85,6 +141,9 @@ describe('useAddDisc', () => {
 
     act(() => {
       result.current.onBarcodeDetectorUnsupported()
+    })
+    act(() => {
+      result.current.onEnterManually()
       result.current.onCandidateSelected(makeCandidate())
       result.current.onFormatSelected('4K')
     })
@@ -116,6 +175,9 @@ describe('useAddDisc', () => {
 
     act(() => {
       result.current.onBarcodeDetectorUnsupported()
+    })
+    act(() => {
+      result.current.onEnterManually()
       result.current.onCandidateSelected(makeCandidate())
       result.current.onFormatSelected('4K')
     })
@@ -138,6 +200,9 @@ describe('useAddDisc', () => {
 
     act(() => {
       result.current.onBarcodeDetectorUnsupported()
+    })
+    act(() => {
+      result.current.onEnterManually()
       result.current.onCandidateSelected(makeCandidate())
       result.current.onFormatSelected('Blu-ray')
     })
@@ -164,6 +229,9 @@ describe('useAddDisc', () => {
 
     act(() => {
       result.current.onBarcodeDetectorUnsupported()
+    })
+    act(() => {
+      result.current.onEnterManually()
       result.current.onCandidateSelected(makeCandidate())
       result.current.onFormatSelected('4K')
     })
