@@ -11,4 +11,7 @@ export interface DiscSummary {
   notes: string | null
   posterUrl: string
   title: string
+  year: number | null
+  runtime: number | null
+  tmdbRating: number | null
 }
