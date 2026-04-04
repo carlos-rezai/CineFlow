@@ -1,6 +1,6 @@
-import type { CollectionStats } from '../types/stats'
-import { formatRuntime } from '../lib/formatRuntime'
-import { filterQualifiedDirectors, capGenres } from '../lib/statsHelpers'
+import type { CollectionStats } from '../../types/stats'
+import { formatRuntime } from '../../lib/formatRuntime'
+import { filterQualifiedDirectors, capGenres } from '../../lib/statsHelpers'
 import './CollectionSummary.css'
 
 interface CollectionSummaryProps {

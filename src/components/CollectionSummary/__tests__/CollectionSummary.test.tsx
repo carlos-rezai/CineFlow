@@ -4,7 +4,7 @@ import { render, screen, cleanup } from '@testing-library/react'
 
 afterEach(cleanup)
 import { CollectionSummary } from '../CollectionSummary'
-import type { CollectionStats } from '../../types/stats'
+import type { CollectionStats } from '../../../types/stats'
 
 const makeStats = (
   overrides: Partial<CollectionStats> = {},

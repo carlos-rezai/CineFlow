@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { IonContent, IonPage } from '@ionic/react'
-import { useMoodStream } from '../hooks/useMoodStream'
-import { useDecisionStream } from '../hooks/useDecisionStream'
-import MoodInput from '../components/MoodInput'
-import MoodResult from '../components/MoodResult'
-import AppHeader from '../components/AppHeader'
+import { useMoodStream } from '../../hooks/useMoodStream'
+import { useDecisionStream } from '../../hooks/useDecisionStream'
+import MoodInput from '../../components/MoodInput/MoodInput'
+import MoodResult from '../../components/MoodResult/MoodResult'
+import AppHeader from '../../components/AppHeader/AppHeader'
 import './WatchPage.css'
 
 const MOOD_TAGS = [

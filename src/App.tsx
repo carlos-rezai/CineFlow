@@ -9,9 +9,9 @@ import {
 } from '@ionic/react'
 import { IonReactRouter } from '@ionic/react-router'
 import { Redirect, Route } from 'react-router-dom'
-import CollectionPage from './pages/CollectionPage'
-import DiscDetailPage from './pages/DiscDetailPage'
-import WatchPage from './pages/WatchPage'
+import CollectionPage from './pages/CollectionPage/CollectionPage'
+import DiscDetailPage from './pages/DiscDetailPage/DiscDetailPage'
+import WatchPage from './pages/WatchPage/WatchPage'
 import { CollectionRefreshProvider } from './context/CollectionRefreshContext'
 import './App.css'
 

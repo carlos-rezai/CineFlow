@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { IonModal, IonContent } from '@ionic/react'
-import { useStats } from '../hooks/useStats'
-import { formatRuntime } from '../lib/formatRuntime'
-import { capGenres } from '../lib/statsHelpers'
+import { useStats } from '../../hooks/useStats'
+import { formatRuntime } from '../../lib/formatRuntime'
+import { capGenres } from '../../lib/statsHelpers'
 import './StatsModal.css'
 
 interface StatsModalProps {

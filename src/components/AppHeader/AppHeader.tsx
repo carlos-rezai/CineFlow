@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { IonHeader, IonToolbar, IonButtons } from '@ionic/react'
-import StatsModal from './StatsModal'
+import StatsModal from '../StatsModal/StatsModal'
 import './AppHeader.css'
 
 const AppHeader = () => {

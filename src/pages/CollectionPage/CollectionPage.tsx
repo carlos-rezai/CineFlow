@@ -6,12 +6,12 @@ import {
   IonPage,
   useIonViewWillEnter,
 } from '@ionic/react'
-import AppHeader from '../components/AppHeader'
-import AddDiscModal from '../components/AddDiscModal'
-import DiscCard from '../components/DiscCard'
-import { useCollection } from '../hooks/useCollection'
-import type { WatchedFilter } from '../hooks/useCollection'
-import { CollectionRefreshContext } from '../context/CollectionRefreshContext'
+import AppHeader from '../../components/AppHeader/AppHeader'
+import AddDiscModal from '../../components/AddDiscModal/AddDiscModal'
+import DiscCard from '../../components/DiscCard/DiscCard'
+import { useCollection } from '../../hooks/useCollection'
+import type { WatchedFilter } from '../../hooks/useCollection'
+import { CollectionRefreshContext } from '../../context/CollectionRefreshContext'
 import './CollectionPage.css'
 
 const FILTERS: { value: WatchedFilter; label: string }[] = [

@@ -1,4 +1,4 @@
-import type { MoodCandidate } from '../types/mood'
+import type { MoodCandidate } from '../../types/mood'
 
 interface MoodResultProps {
   topPick: MoodCandidate

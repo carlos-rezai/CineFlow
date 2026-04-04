@@ -11,16 +11,16 @@ import {
 afterEach(cleanup)
 afterEach(() => vi.clearAllMocks())
 
-vi.mock('../../hooks/useMoodStream', () => ({
+vi.mock('../../../hooks/useMoodStream', () => ({
   useMoodStream: vi.fn(),
 }))
 
-vi.mock('../../hooks/useDecisionStream', () => ({
+vi.mock('../../../hooks/useDecisionStream', () => ({
   useDecisionStream: vi.fn(),
 }))
 
-import { useMoodStream } from '../../hooks/useMoodStream'
-import { useDecisionStream } from '../../hooks/useDecisionStream'
+import { useMoodStream } from '../../../hooks/useMoodStream'
+import { useDecisionStream } from '../../../hooks/useDecisionStream'
 import WatchPage from '../WatchPage'
 
 const mockUseMoodStream = vi.mocked(useMoodStream)

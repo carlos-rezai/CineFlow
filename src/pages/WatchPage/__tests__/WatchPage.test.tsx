@@ -5,11 +5,11 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 afterEach(cleanup)
 afterEach(() => vi.clearAllMocks())
 
-vi.mock('../../hooks/useMoodStream', () => ({
+vi.mock('../../../hooks/useMoodStream', () => ({
   useMoodStream: vi.fn(),
 }))
 
-import { useMoodStream } from '../../hooks/useMoodStream'
+import { useMoodStream } from '../../../hooks/useMoodStream'
 import WatchPage from '../WatchPage'
 
 const mockUseMoodStream = vi.mocked(useMoodStream)

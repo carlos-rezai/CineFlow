@@ -1,5 +1,5 @@
 import { useHistory } from 'react-router-dom'
-import type { DiscSummary } from '../types/disc'
+import type { DiscSummary } from '../../types/disc'
 import './DiscCard.css'
 
 interface DiscCardProps {

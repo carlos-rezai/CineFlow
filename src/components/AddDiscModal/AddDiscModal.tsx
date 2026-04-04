@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { IonContent, IonModal, IonSpinner, IonText } from '@ionic/react'
-import { useAddDisc } from '../hooks/useAddDisc'
-import type { DiscFormat } from '../hooks/useAddDisc'
+import { useAddDisc } from '../../hooks/useAddDisc'
+import type { DiscFormat } from '../../hooks/useAddDisc'
 import './AddDiscModal.css'
 
 interface BarcodeDetected {

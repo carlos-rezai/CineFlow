@@ -12,9 +12,9 @@ import {
   IonToast,
   IonToolbar,
 } from '@ionic/react'
-import { useDisc } from '../hooks/useDisc'
-import type { DiscSummary } from '../types/disc'
-import { CollectionRefreshContext } from '../context/CollectionRefreshContext'
+import { useDisc } from '../../hooks/useDisc'
+import type { DiscSummary } from '../../types/disc'
+import { CollectionRefreshContext } from '../../context/CollectionRefreshContext'
 import './DiscDetailPage.css'
 
 const StarRating = ({
