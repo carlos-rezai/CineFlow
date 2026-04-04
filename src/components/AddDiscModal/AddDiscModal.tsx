@@ -11,7 +11,10 @@ interface BarcodeDetectorLike {
   detect(source: HTMLVideoElement): Promise<BarcodeDetected[]>
 }
 interface WindowWithBarcodeDetector {
-  BarcodeDetector: new (options: { formats: string[] }) => BarcodeDetectorLike
+  BarcodeDetector: {
+    new (options: { formats: string[] }): BarcodeDetectorLike
+    getSupportedFormats(): Promise<string[]>
+  }
 }
 
 interface AddDiscModalProps {
@@ -98,9 +101,23 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
         }
 
         const win = window as unknown as WindowWithBarcodeDetector
-        const detector = new win.BarcodeDetector({
-          formats: ['ean_13', 'upc_a', 'upc_e'],
-        })
+        const supported = await Promise.race([
+          win.BarcodeDetector.getSupportedFormats(),
+          new Promise<never>((_, reject) =>
+            setTimeout(
+              () => reject(new Error('getSupportedFormats timeout')),
+              2000,
+            ),
+          ),
+        ])
+        const formats = ['ean_13', 'upc_a', 'upc_e'].filter((f) =>
+          supported.includes(f),
+        )
+        if (formats.length === 0) {
+          onBarcodeDetectorUnsupported()
+          return
+        }
+        const detector = new win.BarcodeDetector({ formats })
 
         const scan = async () => {
           if (stopped || !videoRef.current) return
