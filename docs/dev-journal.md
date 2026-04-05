@@ -346,3 +346,65 @@ window` alone as a supported check.
   a data-capable USB cable — charge-only cables will not show the device.
   Alternative: render debug output directly in the UI using temporary state
   variables when USB debugging is not available.
+
+## 2026-04-05
+
+- Deploying a Node.js + TypeScript server to Render requires `build`
+  and `start` scripts in `server/package.json`. Build: `tsc`, Start:
+  `node dist/[output-path]/index.js`. The output path depends on
+  `rootDir` in `tsconfig.json` — if `rootDir: ".."` the compiled
+  output mirrors the full path: `dist/server/src/index.js`.
+
+- When `tsconfig.json` includes files outside the server directory
+  (e.g. `../ai`), TypeScript requires `rootDir` to be set explicitly
+  to the common ancestor. Set `rootDir: ".."` and exclude test files
+  with `"exclude": ["src/__tests__"]` to prevent test dependencies
+  from being compiled into production output.
+
+- Render only installs `dependencies`, not `devDependencies`, during
+  production builds. Move `@types/node`, `@types/express`, `@types/cors`,
+  and any packages required at compile time to `dependencies`. Runtime
+  type packages are needed by `tsc` even in production builds.
+
+- Packages imported by files outside `server/` (e.g. `ai/prompts/`)
+  must be installed at the project root AND in `server/` — TypeScript
+  resolves imports relative to the file location. `@google/generative-ai`
+  must be in both `package.json` files.
+
+- Husky runs `npm install` which triggers the `prepare` script on
+  Render. Fix: change `"prepare": "husky"` to `"prepare": "husky || true"`
+  in root `package.json` — the `|| true` makes it a no-op when husky
+  is not installed in production.
+
+- CORS must allow the production frontend URL. Use an environment
+  variable rather than hardcoding:
+  `ALLOWED_ORIGINS=https://your-app.vercel.app` in Render.
+  Fallback to `localhost:5173` for local development. Split on comma
+  to support multiple origins.
+
+- MongoDB Atlas blocks all connections by default. Add `0.0.0.0/0`
+  to the IP Access List (Network Access) to allow Render's dynamic
+  IPs. Acceptable for a personal portfolio project.
+
+- Vercel requires a `vercel.json` at the project root for client-side
+  routing to work. Without it, direct URL access (e.g. `/collection`)
+  returns 404. Add:
+  `{"rewrites": [{"source": "/(.*)", "destination": "/index.html"}]}`
+
+- `BarcodeDetector` exists in `window` on some Android Chrome versions
+  but fails at runtime — `getSupportedFormats()` hangs and the
+  constructor throws. Race `getSupportedFormats()` against a 2 second
+  timeout. If it times out, returns empty, or the constructor throws,
+  fall through to `camera_error` state. Never trust
+  `'BarcodeDetector' in window` alone as a support check.
+
+- For HTTPS tunneling during mobile testing, use ngrok:
+  `ngrok http 5173`. Requires a free account and authtoken.
+  Also add `allowedHosts: true` to `vite.config.ts` server options
+  to allow the ngrok domain. Android Chrome requires HTTPS for
+  `getUserMedia` on non-localhost origins.
+
+- Rate limit AI endpoints in production to prevent unexpected costs.
+  Use `express-rate-limit` on `POST /api/mood` and `POST /api/decision`.
+  Register the limiter before the router — order matters in Express.
+  Move `express-rate-limit` to `dependencies` not `devDependencies`.
