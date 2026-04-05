@@ -43,15 +43,18 @@ const DiscCard = ({ disc }: DiscCardProps) => {
         disc.runtime !== null ||
         disc.tmdbRating !== null) && (
         <div className="disc-card__meta">
-          {disc.year !== null && (
-            <span className="disc-card__meta-item">{disc.year}</span>
-          )}
-          {disc.runtime !== null && (
-            <span className="disc-card__meta-item">{disc.runtime} MIN</span>
-          )}
-          {disc.tmdbRating !== null && (
-            <span className="disc-card__meta-item">★ {disc.tmdbRating}</span>
-          )}
+          {[
+            disc.year !== null ? String(disc.year) : null,
+            disc.runtime !== null ? `${disc.runtime} MIN` : null,
+            disc.tmdbRating !== null ? `★ ${disc.tmdbRating.toFixed(1)}` : null,
+          ]
+            .filter(Boolean)
+            .map((segment, i) => (
+              <span key={i} className="disc-card__meta-item">
+                {i > 0 && <span className="disc-card__meta-sep">·</span>}
+                {segment}
+              </span>
+            ))}
         </div>
       )}
     </div>

@@ -234,6 +234,28 @@
   color: #f87171;
 }
 
+/* Camera error */
+.add-disc__camera-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.add-disc__camera-error-icon {
+  font-size: 64px;
+  color: var(--color-text-muted);
+}
+
+.add-disc__camera-error-message {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
 /* Success */
 .add-disc__success {
   display: flex;
