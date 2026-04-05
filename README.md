@@ -191,6 +191,7 @@ Then open `http://localhost:5173` in your browser.
 | Decision pipeline (multi-step AI reasoning)           | ✅ Complete |
 | Aperture Noir design system (UI theme)                | ✅ Complete |
 | Barcode scanning (camera-based disc lookup)           | ✅ Complete |
+| Deployed (Vercel + Render + MongoDB Atlas)            | ✅ Complete |
 
 ---
 
@@ -206,11 +207,14 @@ Then open `http://localhost:5173` in your browser.
 
 ## Author
 
-**Carlos Rezai** — Senior Software Engineer, Berlin
-Transitioning from frontend specialist to fullstack + AI integration.
+**Carlos Rezai** — Senior Software Engineer, Berlin  
+Transitioning from frontend specialist to agentic AI engineering —
+building structured human-AI workflows and fullstack AI-powered products.
 
 [GitHub](https://github.com/carlos-rezai) · [LinkedIn](https://www.linkedin.com/in/aryan-carlos-r-0ba21017b/)
 
 ---
 
-_Live demo coming soon._
+Live Demo: [CineFlow](https://cineflow-lovat.vercel.app/)
+
+> **Note:** CineFlow is designed for mobile viewports. For the best experience, view on a mobile device or use Chrome DevTools mobile emulation (toggle device toolbar with `Ctrl+Shift+M`).
