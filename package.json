@@ -13,7 +13,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
