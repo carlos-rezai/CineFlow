@@ -218,3 +218,5 @@ building structured human-AI workflows and fullstack AI-powered products.
 Live Demo: [CineFlow](https://cineflow-lovat.vercel.app/)
 
 > **Note:** CineFlow is designed for mobile viewports. For the best experience, view on a mobile device or use Chrome DevTools mobile emulation (toggle device toolbar with `Ctrl+Shift+M`).
+
+> **AI disabled in demo:** The AI features (decision engine, mood mapping, collection intelligence) are turned off in the live demo to avoid ongoing API costs. If you'd like to see them running, reach out and I can enable them.
