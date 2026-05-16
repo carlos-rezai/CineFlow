@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react'
 import { IonContent, IonModal } from '@ionic/react'
 import { useAddDisc } from '../../hooks/useAddDisc'
 import type { DiscFormat } from '../../hooks/useAddDisc'
+import ModalCloseButton from '../ModalCloseButton/ModalCloseButton'
 import './AddDiscModal.css'
 
 interface BarcodeDetected {
@@ -156,9 +157,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
       <IonModal isOpen={isOpen} onDidDismiss={stableOnDidDismiss}>
         <div className="add-disc__scan-header">
           <p className="text-section">Scan Barcode</p>
-          <button className="add-disc__close-btn" onClick={stableOnDidDismiss}>
-            <span className="material-symbols-rounded">close</span>
-          </button>
+          <ModalCloseButton onClick={stableOnDidDismiss} />
         </div>
         <IonContent>
           <video ref={videoRef} className="add-disc__video" playsInline muted />
@@ -172,9 +171,7 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
       <IonModal isOpen={isOpen} onDidDismiss={stableOnDidDismiss}>
         <div className="add-disc__scan-header">
           <p className="text-section">Scan Barcode</p>
-          <button className="add-disc__close-btn" onClick={reset}>
-            <span className="material-symbols-rounded">close</span>
-          </button>
+          <ModalCloseButton onClick={reset} />
         </div>
         <IonContent>
           <div className="add-disc__resolving">
@@ -190,16 +187,25 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
     return (
       <IonModal isOpen={isOpen} onDidDismiss={stableOnDidDismiss}>
         <IonContent>
-          <div className="add-disc__camera-error">
-            <span className="material-symbols-rounded add-disc__camera-error-icon">
-              no_photography
-            </span>
-            <p className="text-sub add-disc__camera-error-message">
-              Camera access denied — enter barcode manually
-            </p>
-            <button className="add-disc__confirm-btn" onClick={onEnterManually}>
-              Enter manually →
-            </button>
+          <div className="add-disc__camera-error-wrap">
+            <ModalCloseButton
+              onClick={stableOnDidDismiss}
+              className="add-disc__camera-error-close"
+            />
+            <div className="add-disc__camera-error">
+              <span className="material-symbols-rounded add-disc__camera-error-icon">
+                no_photography
+              </span>
+              <p className="text-sub add-disc__camera-error-message">
+                Camera access denied — enter barcode manually
+              </p>
+              <button
+                className="add-disc__confirm-btn"
+                onClick={onEnterManually}
+              >
+                Enter manually →
+              </button>
+            </div>
           </div>
         </IonContent>
       </IonModal>
@@ -225,6 +231,10 @@ const AddDiscModal = ({ isOpen, onDidDismiss }: AddDiscModalProps) => {
     <IonModal isOpen={isOpen} onDidDismiss={stableOnDidDismiss}>
       {/* Hero header */}
       <div className="add-disc__hero">
+        <ModalCloseButton
+          onClick={stableOnDidDismiss}
+          className="add-disc__hero-close"
+        />
         <p className="text-section add-disc__hero-eyebrow">
           Inventory Management
         </p>

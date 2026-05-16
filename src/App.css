@@ -12,6 +12,13 @@ body {
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
   }
 
+  ion-modal {
+    --width: 430px;
+    --height: 844px;
+    --border-radius: 0;
+    --box-shadow: none;
+  }
+
   ion-content::part(scroll)::-webkit-scrollbar {
     display: none;
   }

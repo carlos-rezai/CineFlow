@@ -3,6 +3,7 @@ import { IonModal, IonContent } from '@ionic/react'
 import { useStats } from '../../hooks/useStats'
 import { formatRuntime } from '../../lib/formatRuntime'
 import { capGenres } from '../../lib/statsHelpers'
+import ModalCloseButton from '../ModalCloseButton/ModalCloseButton'
 import './StatsModal.css'
 
 interface StatsModalProps {
@@ -34,9 +35,7 @@ const StatsModal = ({ isOpen, onDismiss }: StatsModalProps) => {
             <span className="stats-modal__title text-section">
               Collection Stats
             </span>
-            <button className="stats-modal__close" onClick={onDismiss}>
-              <span className="material-symbols-rounded">close</span>
-            </button>
+            <ModalCloseButton onClick={onDismiss} />
           </div>
 
           {stats && (

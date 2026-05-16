@@ -12,17 +12,9 @@
   background: var(--color-background);
 }
 
-.add-disc__close-btn {
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-
 /* Hero header */
 .add-disc__hero {
+  position: relative;
   background: radial-gradient(ellipse at top, #1a2a2a, #0a0a0a);
   height: 200px;
   display: flex;
@@ -30,6 +22,12 @@
   justify-content: flex-end;
   padding: var(--space-6);
   gap: var(--space-2);
+}
+
+.add-disc__hero-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-6);
 }
 
 .add-disc__hero-eyebrow {
@@ -235,6 +233,17 @@
 }
 
 /* Camera error */
+.add-disc__camera-error-wrap {
+  position: relative;
+  height: 100%;
+}
+
+.add-disc__camera-error-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-6);
+}
+
 .add-disc__camera-error {
   display: flex;
   flex-direction: column;
