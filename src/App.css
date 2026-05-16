@@ -1,3 +1,26 @@
+body {
+  overflow-x: hidden;
+}
+
+@media (min-width: 431px) {
+  ion-app {
+    --ion-background-color: var(--color-background);
+    inset: 0;
+    margin: auto;
+    max-width: 430px;
+    height: 844px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+  }
+
+  ion-content::part(scroll)::-webkit-scrollbar {
+    display: none;
+  }
+
+  ion-content::part(scroll) {
+    scrollbar-width: none;
+  }
+}
+
 .app-tab-bar {
   --background: var(--color-surface);
   --border: 1px solid var(--color-border);

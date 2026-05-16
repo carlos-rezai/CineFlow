@@ -9,6 +9,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+@media (min-width: 431px) {
+  body {
+    --ion-background-color: #222222;
+    background: #222222;
+  }
+}
+
 #root {
   width: 100%;
   min-height: 100svh;
