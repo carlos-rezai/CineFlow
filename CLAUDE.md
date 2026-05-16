@@ -61,6 +61,7 @@ AI integration, and Claude Code workflow.
 - `src/lib/` — pure logic and non-AI external API calls
 - `server/src/` — MongoDB, TMDB proxy, AI pipeline execution
 - `src/` never talks to MongoDB or TMDB directly
+- All layouts are phone-frame constrained at `max-width: 430px` — do not design for wider viewports
 
 ## Skills Location
 
@@ -127,4 +128,5 @@ VITE_API_BASE_URL=http://localhost:3001
 - [x] Decision pipeline
 - [x] Aperture Noir design system
 - [x] Barcode scanning
+- [x] Desktop phone-frame layout
 - [x] Deployed — Vercel + Render + MongoDB Atlas

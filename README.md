@@ -191,6 +191,7 @@ Then open `http://localhost:5173` in your browser.
 | Decision pipeline (multi-step AI reasoning)           | ✅ Complete |
 | Aperture Noir design system (UI theme)                | ✅ Complete |
 | Barcode scanning (camera-based disc lookup)           | ✅ Complete |
+| Desktop phone-frame layout (centered at 430px)        | ✅ Complete |
 | Deployed (Vercel + Render + MongoDB Atlas)            | ✅ Complete |
 
 ---
@@ -217,6 +218,6 @@ building structured human-AI workflows and fullstack AI-powered products.
 
 Live Demo: [CineFlow](https://cineflow-lovat.vercel.app/)
 
-> **Note:** CineFlow is designed for mobile viewports. For the best experience, view on a mobile device or use Chrome DevTools mobile emulation (toggle device toolbar with `Ctrl+Shift+M`).
+> On desktop, CineFlow renders as a centered phone-frame — the layout is intentionally mobile-first.
 
 > **AI disabled in demo:** The AI features (decision engine, mood mapping, collection intelligence) are turned off in the live demo to avoid ongoing API costs. If you'd like to see them running, reach out and I can enable them.
